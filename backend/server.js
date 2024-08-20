@@ -3,13 +3,20 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const chatBotRoutes=require("./routes/chatBotRoutes")
 const messageRoutes = require("./routes/messageRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
+const helmet = require('helmet');
+
+
+
 
 dotenv.config();
 connectDB();
 const app = express();
+
+app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
 
 app.use(express.json()); // to accept json data
 
@@ -20,6 +27,7 @@ app.use(express.json()); // to accept json data
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
+app.use("/api/chatbot", chatBotRoutes);
 
 // --------------------------deployment------------------------------
 

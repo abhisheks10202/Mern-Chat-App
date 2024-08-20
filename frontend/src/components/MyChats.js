@@ -1,4 +1,4 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon,ArrowForwardIcon } from "@chakra-ui/icons";
 import { Box, Stack, Text } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
@@ -6,8 +6,11 @@ import { useEffect, useState } from "react";
 import { getSender } from "../config/ChatLogics";
 import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
-import { Button } from "@chakra-ui/react";
+import { Button,ButtonGroup } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
+import ChatBot from "./ChatBot";
+
+
 
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
@@ -72,11 +75,14 @@ const MyChats = ({ fetchAgain }) => {
             display="flex"
             fontSize={{ base: "17px", md: "10px", lg: "17px" }}
             rightIcon={<AddIcon />}
+            
           >
             New Group Chat
           </Button>
         </GroupChatModal>
       </Box>
+     <ChatBot/>
+     
       <Box
         display="flex"
         flexDir="column"

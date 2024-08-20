@@ -90,7 +90,7 @@ const deleteForEveryOne = asyncHandler(async (req, res) => {
         .status(403)
         .json({ error: "You can only delete your own messages" });
     }
-
+    const deletedMessage = await Message.findByIdAndDelete(messageId);
     message.deletedForEveryone = true;
     await message.save();
     console.log("chatid=", message.chat._id);
