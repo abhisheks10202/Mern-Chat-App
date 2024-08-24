@@ -128,7 +128,6 @@ const deleteForEveryOne = asyncHandler(async (req, res) => {
 
   try {
     const message = await Message.findById(messageId);
-    console.log(message.deletedForEveryone===true)
     if (!message||message.deletedForEveryone===true ) {
       return res.status(404).json({ error: "Message not found or already deleted" });
     }

@@ -101,6 +101,7 @@ const ScrollableChat = ({ messages }) => {
   const handleDeleteForEveryone = async() => {
     // Call the API for deleting the message for everyone
     // ...
+    const response=""
     try {
       const config = {
         headers: {
@@ -112,8 +113,9 @@ const ScrollableChat = ({ messages }) => {
         `/api/message/${messageId}/delete-for-everyone`,
         config
       );
+      console.log(response)
       // Handle the response data as needed
-      console.log(response.data);
+      // console.log(response.error);
       closeModal();
       // Show success toast message
       toast({
@@ -124,12 +126,13 @@ const ScrollableChat = ({ messages }) => {
         position: "bottom",
       });
     } catch (error) {
+      const errorMessage = error.response.data.error;
       console.error(error);
       // Handle any errors that occur during the request
       // Show error toast message
       toast({
         title: "Error",
-        description: "An error occurred while deleting the message.",
+        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -138,7 +141,7 @@ const ScrollableChat = ({ messages }) => {
     }
     closeModal();
   };
-  console.log("scroll", user);
+
 
   const shouldShowDateSeparator = (currentMessage, previousMessage) => {
     if (!previousMessage) return true;
