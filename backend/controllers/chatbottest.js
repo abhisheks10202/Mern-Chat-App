@@ -11,7 +11,7 @@ const channelToken = process.env.CHANNEL_TOKEN;
 
 
 const payload = asyncHandler(async (req, res) => {
-  const url = `https://payload.vextapp.com/hook/8SZVB74IU4/catch/$(channel_token)`;
+  const url = `https://payload.vextapp.com/hook/OKPIG3T2H8/catch/${channelToken}`;
   const headers = {
       'Content-Type': 'application/json',
       'Apikey': `Api-Key ${apiKey}`
@@ -28,13 +28,11 @@ const payload = asyncHandler(async (req, res) => {
   try {
     const response = await axios.post(url, data, { headers });
         res.json(response.data);
-        console.log("geloeo")
 
 
     //save the sender loggedi user message
     const content=data.payload;
     const chatId=info.chatId;
-    console.log(chatId);
 
     
 
@@ -51,7 +49,6 @@ const payload = asyncHandler(async (req, res) => {
 
     try {
       var message = await Message.create(newMessage);
-      console.log(message);
 
       message = await message.populate("sender", "name pic");
       message = await message.populate("chat");
@@ -72,12 +69,12 @@ const payload = asyncHandler(async (req, res) => {
     
     var newMessageForResponse = {
       sender:"66c5a7d94b2ecb789979b40c",
-      content: response.data.text,
+      content: content,
       chat: chatId,
     };
 
     try {
-      var message = await Message.create(newMessageForResponse);
+      var message = await Message.create(newMessage);
 
       message = await message.populate("sender", "name pic");
       message = await message.populate("chat");
@@ -85,7 +82,7 @@ const payload = asyncHandler(async (req, res) => {
         path: "chat.users",
         select: "name pic email",
       });
-      console.log(message);
+
       await Chat.findByIdAndUpdate(chatId, { latestMessage: message });
 
       // res.json(message);

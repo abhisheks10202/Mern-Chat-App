@@ -71,36 +71,86 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const sendMessage = async (event) => {
+
+    // console.log(selectedChat.users);
+
+
+
     if (event.key === "Enter" && newMessage) {
-      socket.emit("stop typing", selectedChat._id);
-      try {
-        const config = {
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${user.token}`,
-          },
-        };
+      const users = selectedChat.users;
+      console.log(messages);
+
+      // Check if "askchatbot@gmail.com" exists in the users array
+      const hasAskChatbotEmail = users.some(user => user.email === "askchatbot@gmail.com");
+
+      if (hasAskChatbotEmail) {
+        // Run API when "askchatbot@gmail.com" is found
+        // Call your API here
+        const loggedUser = JSON.parse(localStorage.getItem("userInfo"))._id;
+        const chatId = selectedChat._id;
+
+        console.log("Running API for askchatbot@gmail.com");
+        const message = newMessage;
+
+        // console.log("Running other API", user.name);
+        // socket.emit("stop typing", selectedChat._id);
+        try {
+          const config = {
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+          const res = await axios.post('http://localhost:3000/api/chatbot/send-payload', { loggedUser, chatId, message },config);
+          console.log(res);
+          // setResponse(res.data.text.replace(/\n/g, '\n\n'));
+
+          // socket.emit("new message", res.data);
+          // console.log(res.data);
+          // setMessages([...messages, res.data.text]);
+
+        } catch (error) {
+          console.error('Error:', error);
+        }
         setNewMessage("");
-        const { data } = await axios.post(
-          "/api/message",
-          {
-            content: newMessage,
-            chatId: selectedChat,
-          },
-          config
-        );
-        socket.emit("new message", data);
-        setMessages([...messages, data]);
-      } catch (error) {
-        toast({
-          title: "Error Occured!",
-          description: "Failed to send the Message",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom",
-        });
       }
+      else {
+        // Run API when "askchatbot@gmail.com" is not found
+        // Call your other API here
+        console.log("Running other API", user.name);
+        socket.emit("stop typing", selectedChat._id);
+        try {
+          const config = {
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `Bearer ${user.token}`,
+            },
+          };
+
+          setNewMessage("");
+          console.log(newMessage);
+          const { data } = await axios.post(
+            "/api/message",
+            {
+              content: newMessage,
+              chatId: selectedChat,
+            },
+            config
+          );
+          socket.emit("new message", data);
+          setMessages([...messages, data]);
+        } catch (error) {
+          toast({
+            title: "Error Occured!",
+            description: "Failed to send the Message",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+        }
+      }
+
     }
   };
 
@@ -162,6 +212,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     <>
       {selectedChat ? (
         <>
+      
           <Text
             fontSize={{ base: "28px", md: "30px" }}
             pb={3}
@@ -218,7 +269,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ) : (
               <div className="messages">
                 <ScrollableChat messages={messages} />
+                
               </div>
+              
             )}
 
             <FormControl

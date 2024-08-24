@@ -3,14 +3,38 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Input, HStack, Button, ButtonGroup, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { AddIcon, ArrowForwardIcon } from "@chakra-ui/icons";
-
+// import { ChatState } from "../Context/ChatProvider"
 
 const ChatBot = () => {
     const [message, setMessage] = useState('');
     const [response, setResponse] = useState('');
     const [isOpen, setIsOpen] = useState(false); // State to control the modal visibility
+
+    // const [search, setSearch] = useState("");
+    // const [searchResult, setSearchResult] = useState([]);
+    // const [loading, setLoading] = useState(false);
+    // const [loadingChat, setLoadingChat] = useState(false);
+  
+    // const {
+    //   setSelectedChat,
+    //   user,
+    //   notification,
+    //   setNotification,
+    //   chats,
+    //   setChats,
+    // } = ChatState();
+
+
   
     const sendMessage = async () => {
+      // chats.forEach((chat) => {
+      //   if (user._id== chat.users[1]._id&& chat.isChatBot === false) {
+      //     console.log("rajmma");
+      //   }
+      // });
+      //  console.log(chats[0].users[1]._id)
+      //  console.log(user._id)
+
       try {
         const res = await axios.post('http://localhost:3000/api/chatbot/send-payload', { message });
         console.log(res);

@@ -57,6 +57,7 @@ function SideDrawer() {
   };
 
   const handleSearch = async () => {
+    // console.log(chats[0].chatName)
     if (!search) {
       toast({
         title: "Please Enter something in search",

@@ -7,7 +7,9 @@ const User = require("../models/userModel");
 //@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
-
+  console.log(req.user.name);
+  // if(userId.toString()==="66c5a7d94b2ecb789979b40c")
+  //    console.log("kuch to mila");
   if (!userId) {
     console.log("UserId param not sent with request");
     return res.sendStatus(400);
@@ -202,3 +204,4 @@ module.exports = {
   addToGroup,
   removeFromGroup,
 };
+

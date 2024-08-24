@@ -45,3 +45,11 @@ export const getSender = (loggedUser, users) => {
 export const getSenderFull = (loggedUser, users) => {
   return users[0]._id === loggedUser._id ? users[1] : users[0];
 };
+
+export const deletedFor = (messages, m, i, userId) => {
+  console.log(messages,m,i,userId);
+
+  return (
+    m.deletedFor.includes(userId) ? false : true
+  );
+};

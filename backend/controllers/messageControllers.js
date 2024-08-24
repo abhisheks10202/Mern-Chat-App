@@ -73,34 +73,75 @@ const deleteForMe = asyncHandler(async (req, res) => {
   }
 });
 
+
+// const deleteForMe = asyncHandler(async (req, res) => {
+//   const userId = req.user._id;
+//   const messageId = req.params.messageId;
+
+//   try {
+//     const message = await Message.findById(messageId);
+//     if (!message) {
+//       return res.status(404).json({ error: "Message not found" });
+//     }
+
+//     const chat = await Chat.findById(message.chat._id);
+//     if (!chat) {
+//       return res.status(404).json({ error: "Chat not found" });
+//     }
+
+//     const isLatestMessage =
+//       chat.latestMessage && chat.latestMessage._id.toString() === messageId;
+//     const isLastMessage = await Message.findOne({ "chat._id": chat._id })
+//       .sort({ createdAt: -1 })
+//       .exec();
+
+//     if (isLastMessage && isLastMessage._id.toString() === messageId) {
+//       chat.latestMessage = null;
+//     } else if (isLatestMessage) {
+//       const previousMessage = await Message.findOne({
+//         "chat._id": chat._id,
+//         _id: { $ne: messageId },
+//         deletedFor: { $ne: userId },
+//       })
+//         .sort({ createdAt: -1 })
+//         .exec();
+//       chat.latestMessage = previousMessage ? previousMessage._id : null;
+//     }
+
+//     await chat.save();
+
+//     message.deletedFor.push(userId);
+//     await message.save();
+
+//     res.json({ success: true, message: "Message deleted for you" });
+//   } catch (error) {
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+
+
 const deleteForEveryOne = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const messageId = req.params.messageId;
-  console.log(userId.toString(), messageId);
+  // console.log(userId.toString(), messageId);
 
   try {
     const message = await Message.findById(messageId);
-    if (!message) {
-      return res.status(404).json({ error: "Message not found" });
+    console.log(message.deletedForEveryone===true)
+    if (!message||message.deletedForEveryone===true ) {
+      return res.status(404).json({ error: "Message not found or already deleted" });
     }
-    console.log(message.sender._id.toString());
+    // console.log(message.sender._id.toString());
 
     if (message.sender._id.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({ error: "You can only delete your own messages" });
     }
-    const deletedMessage = await Message.findByIdAndDelete(messageId);
     message.deletedForEveryone = true;
+    message.content = "Deleted for everyone";
     await message.save();
-    console.log("chatid=", message.chat._id);
-
-    // Notify all users in the chat about the deletion
-    // const chat = await Chat.findById(message.chat._id).populate("users");
-    // chat.users.forEach((user) => {
-    //   console.log("success ");
-    //   socket.in(user._id).emit("message deleted", messageId);
-    // });
 
     res.json({ success: true, message: "Message deleted for everyone" });
   } catch (error) {

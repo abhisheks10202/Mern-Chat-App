@@ -10,6 +10,7 @@ const chatModel = mongoose.Schema(
       ref: "Message",
     },
     groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isChatBot:{type: Boolean, default: false}
   },
   { timestamps: true }
 );

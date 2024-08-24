@@ -10,7 +10,10 @@ import { Button,ButtonGroup } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 import ChatBot from "./ChatBot";
 
-
+import {
+ 
+  deletedFor
+} from "../config/ChatLogics";
 
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
@@ -20,7 +23,6 @@ const MyChats = ({ fetchAgain }) => {
   const toast = useToast();
 
   const fetchChats = async () => {
-    // console.log(user._id);
     try {
       const config = {
         headers: {
@@ -29,6 +31,7 @@ const MyChats = ({ fetchAgain }) => {
       };
 
       const { data } = await axios.get("/api/chat", config);
+      // console.log(data);
       setChats(data);
     } catch (error) {
       toast({
@@ -96,6 +99,7 @@ const MyChats = ({ fetchAgain }) => {
         {chats ? (
           <Stack overflowY="scroll">
             {chats.map((chat) => (
+              
               <Box
                 onClick={() => setSelectedChat(chat)}
                 cursor="pointer"
@@ -120,6 +124,7 @@ const MyChats = ({ fetchAgain }) => {
                   </Text>
                 )}
               </Box>
+              
             ))}
           </Stack>
         ) : (
