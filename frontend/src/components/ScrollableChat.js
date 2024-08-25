@@ -82,9 +82,9 @@ const ScrollableChat = ({ messages }) => {
         config
       );
 
-      socket.emit("deleted message", response);
+      // socket.emit("deleted message", response);
       // Handle the response data as needed
-      console.log(response.data);
+      console.log(response.data,"after deleted emit");
       closeModal();
       // Show success toast message
       toast({
@@ -95,6 +95,7 @@ const ScrollableChat = ({ messages }) => {
         position: "bottom",
       });
     } catch (error) {
+      console.log(error.response,"in catch errrorrror")
       const errorMessage = error.response.data.error;
       console.error(error);
       // Handle any errors that occur during the request
