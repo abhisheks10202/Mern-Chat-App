@@ -186,6 +186,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
   });
 
+  useEffect(() => {
+    socket.on("message deleted back", (newMessageRecieved) => {
+      // if (
+      //   !selectedChatCompare || // if chat is not selected or doesn't match current chat
+      //   selectedChatCompare._id !== newMessageRecieved.chat._id
+      // ) {
+      //   if (!notification.includes(newMessageRecieved)) {
+      //     setNotification([newMessageRecieved, ...notification]);
+      //     setFetchAgain(!fetchAgain);
+      //   }
+      // } else {
+      //   setMessages([...messages, newMessageRecieved]);
+      // }
+      setFetchAgain(!fetchAgain);
+    });
+  });
+
+
+
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 

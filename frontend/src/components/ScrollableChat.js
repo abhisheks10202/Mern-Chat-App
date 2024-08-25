@@ -43,13 +43,19 @@ import {
   canDeleteForEveryone
 } from "../config/ChatLogics";
 import { ChatState } from "../Context/ChatProvider";
+import io from "socket.io-client";
+
+
 
 
 const ScrollableChat = ({ messages }) => {
+  var socket, selectedChatCompare;
   const { user } = ChatState();
   const [showModal, setShowModal] = useState(false);
   const [messageId, setMessageId] = useState(null);
   const [isSameSenderr, setIsSameSenderr] = useState(false);
+  const [deletedSocket, setDeletedSocket] = useState(null);
+
   const toast = useToast();
 
   const openModal = (m, userId, messageId) => {
@@ -75,6 +81,8 @@ const ScrollableChat = ({ messages }) => {
         `/api/message/${messageId}/delete-for-me`,
         config
       );
+
+      socket.emit("deleted message", response);
       // Handle the response data as needed
       console.log(response.data);
       closeModal();
@@ -118,6 +126,7 @@ const ScrollableChat = ({ messages }) => {
         `/api/message/${messageId}/delete-for-everyone`,
         config
       );
+      socket.emit("deleted message", response);
       console.log(response)
       // Handle the response data as needed
       // console.log(response.error);
@@ -147,6 +156,7 @@ const ScrollableChat = ({ messages }) => {
     closeModal();
   };
 
+ 
 
   const shouldShowDateSeparator = (currentMessage, previousMessage) => {
     if (!previousMessage) return true;
