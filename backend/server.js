@@ -60,9 +60,14 @@ const server = app.listen(
 
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
+  // cors: {
+  //   origin: "http://localhost:3000",
+  //   // credentials: true,
+  // },
   cors: {
-    origin: "http://localhost:3000",
-    // credentials: true,
+    origin: "https://probable-capybara-xgq6rgq4r7c67wv.github.dev", // Use your Codespaces URL
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
