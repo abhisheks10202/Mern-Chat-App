@@ -150,7 +150,7 @@ const deleteForEveryOne = asyncHandler(async (req, res) => {
     message.deletedForEveryone = true;
     message.content = "Deleted for everyone";
     await message.save();
-
+   
     res.json({ success: true, message: "Message deleted for everyone" });
   } catch (error) {
     res.status(500).json({ error: "Server error" });

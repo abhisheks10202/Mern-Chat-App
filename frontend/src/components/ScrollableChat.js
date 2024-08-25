@@ -127,7 +127,7 @@ const ScrollableChat = ({ messages }) => {
         `/api/message/${messageId}/delete-for-everyone`,
         config
       );
-      socket.emit("deleted message", response);
+      // socket.emit("deleted message", response);
       console.log(response)
       // Handle the response data as needed
       // console.log(response.error);
