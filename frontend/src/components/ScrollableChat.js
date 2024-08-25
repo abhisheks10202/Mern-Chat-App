@@ -39,7 +39,8 @@ import {
   isSameSender,
   isSameSenderMargin,
   isSameUser,
-  deletedFor
+  deletedFor,
+  canDeleteForEveryone
 } from "../config/ChatLogics";
 import { ChatState } from "../Context/ChatProvider";
 
@@ -48,9 +49,12 @@ const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
   const [showModal, setShowModal] = useState(false);
   const [messageId, setMessageId] = useState(null);
+  const [isSameSenderr, setIsSameSenderr] = useState(false);
   const toast = useToast();
 
-  const openModal = (messageId) => {
+  const openModal = (m, userId, messageId) => {
+    setIsSameSenderr(canDeleteForEveryone(m, userId, messageId));
+    console.log(isSameSenderr);
     setMessageId(messageId);
     setShowModal(true);
   };
@@ -83,12 +87,13 @@ const ScrollableChat = ({ messages }) => {
         position: "bottom",
       });
     } catch (error) {
+      const errorMessage = error.response.data.error;
       console.error(error);
       // Handle any errors that occur during the request
       // Show error toast message
       toast({
         title: "Error",
-        description: "An error occurred while deleting the message.",
+        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -96,12 +101,12 @@ const ScrollableChat = ({ messages }) => {
       });
     }
   };
-  
 
-  const handleDeleteForEveryone = async() => {
+
+  const handleDeleteForEveryone = async () => {
     // Call the API for deleting the message for everyone
     // ...
-    const response=""
+    const response = ""
     try {
       const config = {
         headers: {
@@ -189,7 +194,7 @@ const ScrollableChat = ({ messages }) => {
               >{m.deletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
                 {m.content}
                 {m.deletedForEveryone === false ? <Tooltip label="Delete Message" fontSize="md">
-                  <ChevronDownIcon onClick={() => openModal(m._id)} cursor="pointer" />
+                  <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />
                 </Tooltip> : <></>}
 
                 <Text fontSize="xs" color="gray.500">
@@ -209,13 +214,18 @@ const ScrollableChat = ({ messages }) => {
             Are you sure you want to delete this message?
           </ModalBody>
           <ModalFooter>
-          <Button colorScheme="red" size="sm" mr={3} ml={1} onClick={handleDeleteForMe}>
-        Delete for Me
-      </Button>
-      <Button colorScheme="red" size="sm" mr={3} onClick={handleDeleteForEveryone}>
-        Delete for Everyone
-      </Button>
-            <Button variant="ghost" size="sm" onClick={closeModal}>Cancel</Button>
+            <Button colorScheme="red" size={isSameSenderr ? "sm" : "md"} // Set size based on isSameSenderr
+              ml={1}
+              mr={isSameSenderr ? 1 : 5} onClick={handleDeleteForMe}>
+              Delete for Me
+            </Button>
+            {isSameSenderr === true ? <Button colorScheme="red" size="sm" mr={3} onClick={handleDeleteForEveryone}>
+              Delete for Everyone
+            </Button> : <></>}
+
+            <Button variant="ghost" size={isSameSenderr ? "sm" : "md"} // Set size based on isSameSenderr
+              ml={1}
+              mr={isSameSenderr ? 1 : 5} onClick={closeModal}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -60,8 +60,17 @@ const deleteForMe = asyncHandler(async (req, res) => {
 
   try {
     const message = await Message.findById(messageId);
+    console.log(message.deletedFor.includes(userId))
+    console.log(userId);
+    
     if (!message) {
       return res.status(404).json({ error: "Message not found" });
+    }
+    else if(message&&message.deletedFor.includes(userId))
+    {
+      return res
+      .status(403)
+      .json({ error: "Message already deleted for you" });
     }
 
     message.deletedFor.push(userId);

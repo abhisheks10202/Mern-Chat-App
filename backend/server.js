@@ -82,6 +82,7 @@ io.on("connection", (socket) => {
 
   socket.on("new message", (newMessageRecieved) => {
     var chat = newMessageRecieved.chat;
+    console.log("Message received", newMessageRecieved);
 
     if (!chat.users) return console.log("chat.users not defined");
 

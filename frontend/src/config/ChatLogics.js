@@ -18,7 +18,9 @@ export const isSameSenderMargin = (messages, m, i, userId) => {
 };
 
 export const isSameSender = (messages, m, i, userId) => {
+  console.log(i);
   return (
+    
     i < messages.length - 1 &&
     (messages[i + 1].sender._id !== m.sender._id ||
       messages[i + 1].sender._id === undefined) &&
@@ -47,9 +49,16 @@ export const getSenderFull = (loggedUser, users) => {
 };
 
 export const deletedFor = (messages, m, i, userId) => {
-  console.log(messages,m,i,userId);
+  // console.log(messages,m,i,userId);
 
   return (
     m.deletedFor.includes(userId) ? false : true
+  );
+};
+
+export const canDeleteForEveryone = ( m,userId,messageId) => {
+  // console.log(m.sender._id,userId);
+  return (
+    m.sender._id === userId?true:false
   );
 };
