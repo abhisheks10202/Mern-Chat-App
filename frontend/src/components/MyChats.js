@@ -120,22 +120,24 @@ const MyChats = ({ fetchAgain }) => {
                     : chat.chatName.charAt(0).toUpperCase() + chat.chatName.slice(1).toLowerCase()}
                 </Text>
                 {chat.latestMessage && (
-                  
+
                   <Text fontSize="xs" display="flex" justifyContent="space-between">
                     <div>
-                      <b>{chat.latestMessage.sender.name.charAt(0).toUpperCase()+chat.latestMessage.sender.name.slice(1)} : </b>
+                      <b>{chat.latestMessage.sender.name.charAt(0).toUpperCase() + chat.latestMessage.sender.name.slice(1)} : </b>
                       {chat.latestMessage.content.length > 50
                         ? chat.latestMessage.content.substring(0, 51) + "..."
                         : chat.latestMessage.content}
                     </div>
                     <div style={{ whiteSpace: "nowrap" }}>
-    {moment(chat.latestMessage.createdAt).isSame(today, 'day')
-      ? moment(chat.latestMessage.createdAt).format('hh:mm A')
-      : moment(chat.latestMessage.createdAt).isSame(today.clone().subtract(1, 'day'), 'day')
-        ? "Yesterday"
-        : moment(chat.latestMessage.createdAt).format('DD/MM/YY')
-    }
-  </div>
+                      {moment(chat.latestMessage.createdAt).isSame(today, 'day')
+                        ? moment(chat.latestMessage.createdAt).format('hh:mm A')
+                        : moment(chat.latestMessage.createdAt).isSame(today.clone().subtract(1, 'day'), 'day')
+                          ? "Yesterday"
+                          : moment(chat.latestMessage.createdAt).format('DD/MM/YY')
+                      }
+                      {console.log(chat.latestMessage.createdAt)}
+                      
+                    </div>
 
                   </Text>
 
