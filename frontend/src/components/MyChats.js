@@ -1,4 +1,4 @@
-import { AddIcon,ArrowForwardIcon } from "@chakra-ui/icons";
+import { AddIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { Box, Stack, Text } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
@@ -6,14 +6,17 @@ import { useEffect, useState } from "react";
 import { getSender } from "../config/ChatLogics";
 import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
-import { Button,ButtonGroup } from "@chakra-ui/react";
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 import ChatBot from "./ChatBot";
+import moment from "moment";
 
 import {
- 
   deletedFor
 } from "../config/ChatLogics";
+
+
+const today = moment().startOf('day');
 
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
@@ -48,6 +51,7 @@ const MyChats = ({ fetchAgain }) => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
+    console.log(fetchAgain, "from useEffect MyCHats");
     // eslint-disable-next-line
   }, [fetchAgain]);
 
@@ -78,14 +82,14 @@ const MyChats = ({ fetchAgain }) => {
             display="flex"
             fontSize={{ base: "17px", md: "10px", lg: "17px" }}
             rightIcon={<AddIcon />}
-            
+
           >
             New Group Chat
           </Button>
         </GroupChatModal>
       </Box>
-     <ChatBot/>
-     
+      <ChatBot />
+
       <Box
         display="flex"
         flexDir="column"
@@ -99,7 +103,7 @@ const MyChats = ({ fetchAgain }) => {
         {chats ? (
           <Stack overflowY="scroll">
             {chats.map((chat) => (
-              
+
               <Box
                 onClick={() => setSelectedChat(chat)}
                 cursor="pointer"
@@ -113,18 +117,39 @@ const MyChats = ({ fetchAgain }) => {
                 <Text>
                   {!chat.isGroupChat
                     ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
+                    : chat.chatName.charAt(0).toUpperCase() + chat.chatName.slice(1).toLowerCase()}
                 </Text>
                 {chat.latestMessage && (
-                  <Text fontSize="xs">
-                    <b>{chat.latestMessage.sender.name} : </b>
-                    {chat.latestMessage.content.length > 50
-                      ? chat.latestMessage.content.substring(0, 51) + "..."
-                      : chat.latestMessage.content}
+                  // <Text fontSize="xs">
+                  //   <b>{chat.latestMessage.sender.name} : </b>
+                  //   {chat.latestMessage.content.length > 50
+                  //     ? chat.latestMessage.content.substring(0, 51) + "..."
+                  //     : chat.latestMessage.content}{moment(chat.latestMessage.createdAt).format("hh:mm A")}
+
+
+                  // </Text>
+                  <Text fontSize="xs" display="flex" justifyContent="space-between">
+                    <div>
+                      <b>{chat.latestMessage.sender.name} : </b>
+                      {chat.latestMessage.content.length > 50
+                        ? chat.latestMessage.content.substring(0, 51) + "..."
+                        : chat.latestMessage.content}
+                    </div>
+                    <div style={{ whiteSpace: "nowrap" }}>
+    {moment(chat.latestMessage.createdAt).isSame(today, 'day')
+      ? moment(chat.latestMessage.createdAt).format('hh:mm A')
+      : moment(chat.latestMessage.createdAt).isSame(today.clone().subtract(1, 'day'), 'day')
+        ? "Yesterday"
+        : moment(chat.latestMessage.createdAt).format('DD/MM/YY')
+    }
+  </div>
+
                   </Text>
+
                 )}
               </Box>
-              
+
+
             ))}
           </Stack>
         ) : (

@@ -48,7 +48,7 @@ import io from "socket.io-client";
 
 
 
-const ScrollableChat = ({ messages }) => {
+const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
   var socket, selectedChatCompare;
   const { user } = ChatState();
   const [showModal, setShowModal] = useState(false);
@@ -81,6 +81,7 @@ const ScrollableChat = ({ messages }) => {
         `/api/message/${messageId}/delete-for-me`,
         config
       );
+      
 
       // socket.emit("deleted message", response);
       // Handle the response data as needed
@@ -94,6 +95,7 @@ const ScrollableChat = ({ messages }) => {
         isClosable: true,
         position: "bottom",
       });
+      setFetchAgain(!fetchAgain);
     } catch (error) {
       console.log(error.response,"in catch errrorrror")
       const errorMessage = error.response.data.error;

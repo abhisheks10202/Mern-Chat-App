@@ -16,7 +16,7 @@ import io from "socket.io-client";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 // const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
-const ENDPOINT = "https://mern-chat-app-1eb8.onrender.com/"; 
+const ENDPOINT = "https://mern-chat-app-1eb8.onrender.com/";
 
 var socket, selectedChatCompare;
 
@@ -99,7 +99,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               Authorization: `Bearer ${user.token}`,
             },
           };
-          const res = await axios.post('http://localhost:3000/api/chatbot/send-payload', { loggedUser, chatId, message },config);
+          const res = await axios.post('http://localhost:3000/api/chatbot/send-payload', { loggedUser, chatId, message }, config);
           console.log(res);
           // setResponse(res.data.text.replace(/\n/g, '\n\n'));
 
@@ -137,6 +137,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           );
           socket.emit("new message", data);
           setMessages([...messages, data]);
+          setFetchAgain(!fetchAgain);
+          console.log(fetchAgain,"from useEffect singleChat sendMessage");
         } catch (error) {
           toast({
             title: "Error Occured!",
@@ -229,7 +231,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     <>
       {selectedChat ? (
         <>
-      
+
           <Text
             fontSize={{ base: "28px", md: "30px" }}
             pb={3}
@@ -285,10 +287,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               />
             ) : (
               <div className="messages">
-                <ScrollableChat messages={messages} />
-                
+                <ScrollableChat messages={messages}
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                />
+
               </div>
-              
+
             )}
 
             <FormControl
