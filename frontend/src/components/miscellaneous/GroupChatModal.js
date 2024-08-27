@@ -162,6 +162,7 @@ const GroupChatModal = ({ children }) => {
                   key={u._id}
                   user={u}
                   handleFunction={() => handleDelete(u)}
+                  
                 />
               ))}
             </Box>

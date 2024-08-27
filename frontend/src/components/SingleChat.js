@@ -252,21 +252,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   {getSender(user, selectedChat.users)}
 
               
-                  {/* <ProfileModal user={getSenderFull(user, selectedChat.users)} /> */}
-                  
+                  <ProfileModal user={getSenderFull(user, selectedChat.users)} />
 
-                <ChatSetting chatId={selectedChat._id}/>
+                <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
                 {/* {selectedChat._id} */}
                 </>
               ) : (
                 <>
                   {selectedChat.chatName.toUpperCase()}
-                  {/* <UpdateGroupChatModal
+                 
+                  <UpdateGroupChatModal
                       fetchMessages={fetchMessages}
                       fetchAgain={fetchAgain}
                       setFetchAgain={setFetchAgain}
-                    />  */}
-                  <ChatSetting chatId={selectedChat._id}/>
+                    />
+                  <ChatSetting selectedChat={selectedChat}/>
 
 
                 </>

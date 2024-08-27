@@ -2,19 +2,27 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter,
 import { ArrowBackIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { Flex } from "@chakra-ui/react";
-import UpdateGroupChatModal from "../miscellaneous/UpdateGroupChatModal";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
-import  { ChatState } from "../../Context/ChatProvider";
+import { ChatState } from "../../Context/ChatProvider";
+import UpdateGroupChatModal from "../miscellaneous/GroupChatModal";
+import ProfileModal from "../miscellaneous/ProfileModal";
+import { getSender, getSenderFull } from "../../config/ChatLogics";
 
 
-const ChatSetting = ({chatId}) => {
+
+
+const ChatSetting = ({ selectedChat,setFetchAgain,fetchAgain,fetchMessages }) => {
 
     const toast = useToast();
     const { user } = ChatState();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const chatId = selectedChat._id;
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    const isGroupChat = selectedChat.isGroupChat;
+    // const { isOpen, onOpen, onClose } = useDisclosure();
 
     const handleHamburgerClick = () => {
         setIsModalOpen(true);
@@ -30,6 +38,12 @@ const ChatSetting = ({chatId}) => {
     };
 
     const handleViewProfile = () => {
+        // Perform the view profile action here
+        setIsModalOpen(false);
+        setShowProfileModal(true);
+
+    };
+    const handleGroupProfile = () => {
         // Perform the view profile action here
     };
 
@@ -84,6 +98,10 @@ const ChatSetting = ({chatId}) => {
         // ... your code ...
     };
 
+    useEffect(() => {
+        // Perform any additional actions or logic here after the showProfileModal state changes
+    }, [showProfileModal]);
+
 
     return (
         <>
@@ -108,11 +126,25 @@ const ChatSetting = ({chatId}) => {
                                 _hover={{ bg: "#38B2AC", color: "white" }}>
                                 Delete Chat
                             </Button>
-                            <Button variant="ghost" onClick={handleViewProfile} colorScheme="#38B2AC"
+                            <Button variant="ghost" onClick={isGroupChat ? handleGroupProfile : handleViewProfile} colorScheme="#38B2AC"
                                 fontWeight="normal"
                                 _hover={{ bg: "#38B2AC", color: "white" }}>
-                                View Profile
+                                {isGroupChat ? "Group Profile" : "View Profile"}
                             </Button>
+                                
+
+{/* {isGroupChat ? (
+            <UpdateGroupChatModal
+              fetchMessages={fetchMessages}
+              fetchAgain={fetchAgain}
+              setFetchAgain={setFetchAgain}
+            />
+            
+          ) : (
+            <ProfileModal user={getSenderFull(user, selectedChat.users)} />
+          )} */}
+                           
+
                             <Button variant="ghost" onClick={handleBlockUser} colorScheme="#38B2AC"
                                 fontWeight="normal"
                                 _hover={{ bg: "#38B2AC", color: "white" }}>
@@ -126,6 +158,9 @@ const ChatSetting = ({chatId}) => {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+            {/* {showProfileModal && (
+                <ProfileModal onOpenuser={getSenderFull(user, selectedChat.users)} onClose={() => setShowProfileModal(false)} />
+            )} */}
         </>
 
     );
