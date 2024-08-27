@@ -34,8 +34,16 @@ const MyChats = ({ fetchAgain }) => {
       };
 
       const { data } = await axios.get("/api/chat", config);
-      // console.log(data);
-      setChats(data);
+      console.log(data,"filetereded",user.name);
+      const filteredChats = data.filter(chat => !chat.chatNotVisibleTo.includes(user._id));
+      // setTimeout(() => {
+      //   console.log(filteredChats);
+      //   // Continue with further processing here
+      // }, 2000);
+      // console.log(filteredChats," yeh hai filtered Chat")
+      // setChats(data);
+      setChats(filteredChats);
+
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -47,6 +55,7 @@ const MyChats = ({ fetchAgain }) => {
       });
     }
   };
+
 
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));

@@ -95,7 +95,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
         isClosable: true,
         position: "bottom",
       });
-      setFetchAgain(!fetchAgain);
+      // setFetchAgain(!fetchAgain);
     } catch (error) {
       console.log(error.response,"in catch errrorrror")
       const errorMessage = error.response.data.error;
@@ -199,14 +199,14 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
                   borderRadius: "20px",
                   padding: "5px 15px",
                   maxWidth: "75%",
-                  color: m.deletedForEveryone ? "gray" : "inherit",
-                  fontStyle: m.deletedForEveryone ? "italic" : "normal",
-                  background: m.deletedForEveryone ? "black" : `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
+                  color: m.MessageDeletedForEveryone ? "gray" : "inherit",
+                  fontStyle: m.MessageDeletedForEveryone ? "italic" : "normal",
+                  background: m.MessageDeletedForEveryone ? "black" : `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
                     }`,
                 }}
-              >{m.deletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
+              >{m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
                 {m.content}
-                {m.deletedForEveryone === false ? <Tooltip label="Delete Message" fontSize="md">
+                {m.MessageDeletedForEveryone === false ? <Tooltip label="Delete Message" fontSize="md">
                   <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />
                 </Tooltip> : <></>}
 

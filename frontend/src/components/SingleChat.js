@@ -13,8 +13,10 @@ import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 import io from "socket.io-client";
 import { Flex } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@chakra-ui/react";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
+import ChatSetting from "./miscellaneous/ChatSetting";
 // const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 const ENDPOINT = "https://mern-chat-app-1eb8.onrender.com/";
 
@@ -28,7 +30,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
+ 
+  const [loggedUser, setLoggedUser] = useState();
 
+ 
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -76,7 +81,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     if (event.key === "Enter" && newMessage) {
       const users = selectedChat.users;
-      console.log(messages);
+      console.log(users);
 
       // Check if "askchatbot@gmail.com" exists in the users array
       const hasAskChatbotEmail = users.some(user => user.email === "askchatbot@gmail.com");
@@ -117,6 +122,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         // Call your other API here
         console.log("Running other API", user.name);
         socket.emit("stop typing", selectedChat._id);
+        const receiverUserIds = users.filter(user => user._id !== loggedUser._id);
+        console.log(receiverUserIds, loggedUser._id);
         try {
           const config = {
             headers: {
@@ -132,6 +139,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             {
               content: newMessage,
               chatId: selectedChat,
+              receiverUserIds:receiverUserIds
             },
             config
           );
@@ -166,7 +174,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     fetchMessages();
-
+    setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     selectedChatCompare = selectedChat;
     // eslint-disable-next-line
   }, [selectedChat]);
@@ -222,47 +230,48 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       {selectedChat ? (
         <>
           {/* <Flex alignItems="center" flexWrap="nowrap"> */}
-            <Text
-              fontSize={{ base: "28px", md: "30px" }}
-              pb={3}
-              px={2}
-              w="100%"
-              fontFamily="Work sans"
-              disply="flex"
-              justifyContent={{ base: "space-between" }}
-              alignItems="center"
-            >
-              <IconButton
-                display={{ base: "flex", md: "none" }}
-                icon={<ArrowBackIcon />}
-                onClick={() => setSelectedChat("")}
-              />
-              {messages &&
-                (!selectedChat.isGroupChat ? (
-                  <>
-                    {getSender(user, selectedChat.users)}
-                    <ProfileModal
-                      user={getSenderFull(user, selectedChat.users)}
-                    />
-                    {/* <Flex ml="auto" >
-                      <HamburgerIcon />
-                    </Flex> */}
+          <Text
+            fontSize={{ base: "28px", md: "30px" }}
+            pb={3}
+            px={2}
+            w="100%"
+            fontFamily="Work sans"
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <IconButton
+              display={{ base: "flex", md: "none" }}
+              icon={<ArrowBackIcon />}
+              onClick={() => setSelectedChat("")}
+            />
+            {messages &&
+              (!selectedChat.isGroupChat ? (
+                <>
 
-                  </>
-                ) : (
-                  <>
-                    {selectedChat.chatName.toUpperCase()}
-                    <UpdateGroupChatModal
+                  {getSender(user, selectedChat.users)}
+
+              
+                  {/* <ProfileModal user={getSenderFull(user, selectedChat.users)} /> */}
+                  
+
+                <ChatSetting chatId={selectedChat._id}/>
+                {/* {selectedChat._id} */}
+                </>
+              ) : (
+                <>
+                  {selectedChat.chatName.toUpperCase()}
+                  {/* <UpdateGroupChatModal
                       fetchMessages={fetchMessages}
                       fetchAgain={fetchAgain}
                       setFetchAgain={setFetchAgain}
-                    /> 
-                      <HamburgerIcon ml={3} />
-                    
+                    />  */}
+                  <ChatSetting chatId={selectedChat._id}/>
 
-                  </>
-                ))}
-            </Text>
+
+                </>
+              ))}
+          </Text>
           {/* </Flex> */}
 
 
@@ -337,7 +346,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Text>
         </Box>
       )}
+       
     </>
+
   );
 };
 

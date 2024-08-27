@@ -10,7 +10,10 @@ const chatModel = mongoose.Schema(
       ref: "Message",
     },
     groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    isChatBot:{type: Boolean, default: false}
+    isChatBot:{type: Boolean, default: false},
+    chatDeletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    chatNotVisibleTo: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
   },
   { timestamps: true }
 );

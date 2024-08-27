@@ -22,9 +22,10 @@ const allMessages = asyncHandler(async (req, res) => {
 //@route           POST /api/Message/
 //@access          Protected
 const sendMessage = asyncHandler(async (req, res) => {
-  const { content, chatId } = req.body;
+  const { content, chatId,receiverUserIds} = req.body;
+console.log(receiverUserIds)
 
-  if (!content || !chatId) {
+  if (!content || !chatId||!receiverUserIds) {
     console.log("Invalid data passed into request");
     return res.sendStatus(400);
   }
@@ -33,6 +34,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     sender: req.user._id,
     content: content,
     chat: chatId,
+    receiver: receiverUserIds,
   };
 
   try {
@@ -46,6 +48,20 @@ const sendMessage = asyncHandler(async (req, res) => {
     });
 
     await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
+    for (const receiverUserId of receiverUserIds) {
+      // Check if the receiverUserId matches any receiver in the message model
+      console.log(receiverUserId)
+     
+        console.log("yes")
+        // Find the chat and remove the chatVisible field for the receiver
+       
+        await Chat.updateMany(
+          { _id: chatId },
+          { $pull:{ chatNotVisibleTo: receiverUserId._id, chatDeletedFor: receiverUserId._id } },
+          
+        );
+        console.log("yhin dikkat h")
+      }
 
     res.json(message);
   } catch (error) {
@@ -60,20 +76,20 @@ const deleteForMe = asyncHandler(async (req, res) => {
 
   try {
     const message = await Message.findById(messageId);
-    console.log(message.deletedFor.includes(userId))
+    console.log(message.MessageDeletedFor.includes(userId))
     console.log(userId);
     
     if (!message) {
       return res.status(404).json({ error: "Message not found" });
     }
-    else if(message&&message.deletedFor.includes(userId))
+    else if(message&&message.MessageDeletedFor.includes(userId))
     {
       return res
       .status(403)
       .json({ error: "Message already deleted for you" });
     }
 
-    message.deletedFor.push(userId);
+    message.MessageDeletedFor.push(userId);
     await message.save();
 
     res.json({ success: true, message: "Message deleted for you" });
@@ -110,7 +126,7 @@ const deleteForMe = asyncHandler(async (req, res) => {
 //       const previousMessage = await Message.findOne({
 //         "chat._id": chat._id,
 //         _id: { $ne: messageId },
-//         deletedFor: { $ne: userId },
+//         MessageDeletedFor: { $ne: userId },
 //       })
 //         .sort({ createdAt: -1 })
 //         .exec();
@@ -119,7 +135,7 @@ const deleteForMe = asyncHandler(async (req, res) => {
 
 //     await chat.save();
 
-//     message.deletedFor.push(userId);
+//     message.MessageDeletedFor.push(userId);
 //     await message.save();
 
 //     res.json({ success: true, message: "Message deleted for you" });
@@ -137,7 +153,7 @@ const deleteForEveryOne = asyncHandler(async (req, res) => {
 
   try {
     const message = await Message.findById(messageId);
-    if (!message||message.deletedForEveryone===true ) {
+    if (!message||message.MessageDeletedForEveryone===true ) {
       return res.status(404).json({ error: "Message not found or already deleted" });
     }
     // console.log(message.sender._id.toString());
@@ -147,7 +163,7 @@ const deleteForEveryOne = asyncHandler(async (req, res) => {
         .status(403)
         .json({ error: "You can only delete your own messages" });
     }
-    message.deletedForEveryone = true;
+    message.MessageDeletedForEveryone = true;
     message.content = "Deleted for everyone";
     await message.save();
    

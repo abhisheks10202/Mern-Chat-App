@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
+const Message = require("../models/messageModel");
 
 //@description     Create or fetch One to One Chat
 //@route           POST /api/chat/
@@ -196,6 +197,55 @@ const addToGroup = asyncHandler(async (req, res) => {
   }
 });
 
+const deleteChat = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const chatId = req.params.chatId;
+
+  try {
+    // Find the chat
+    const chat = await Chat.findById(chatId);
+
+    if (!chat) {
+      // Chat not found
+      return res.status(404).json({ message: 'Chat not found' });
+    }
+
+    // Check if the user is a member of the chat
+    if (!chat.users.includes(userId)) {
+      return res.status(403).json({ message: 'User is not a member of the chat' });
+    }
+    if (chat.chatDeletedFor.includes(userId)) {
+      return res.status(403).json({ message: 'Chat does not exit for the user' });
+    }
+
+
+    // Delete the chat from the chatDeletedFor array for the user
+    if (!chat.chatDeletedFor.includes(userId)) {
+      chat.chatDeletedFor.push(userId);
+    }
+
+    if (!chat.chatNotVisibleTo.includes(userId)) {
+      chat.chatNotVisibleTo.push(userId);
+    }
+
+    await chat.save();
+
+    // Delete the messages for the user in the chat
+    await Message.updateMany(
+      { chat: chatId },
+      { $addToSet: { MessageDeletedFor: userId } }
+    );
+
+    return res.json({ message: 'Chat deleted successfully' });
+  } catch (error) {
+    console.error('Failed to delete chat', error);
+    return res.status(500).json({ message: 'Failed to delete chat' });
+  }
+
+
+
+});
+
 module.exports = {
   accessChat,
   fetchChats,
@@ -203,5 +253,6 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  deleteChat
 };
 

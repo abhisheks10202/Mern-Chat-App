@@ -17,7 +17,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const history = useHistory();
-  const { setUser } = ChatState();
+  const { setUser,setSelectedChat } = ChatState();
 
   const submitHandler = async () => {
     setLoading(true);
@@ -45,7 +45,7 @@ const Login = () => {
         { email, password },
         config
       );
-
+      setSelectedChat(null);
       toast({
         title: "Login Successful",
         status: "success",
@@ -54,6 +54,7 @@ const Login = () => {
         position: "bottom",
       });
       setUser(data);
+      console.log(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
       history.push("/chats");
