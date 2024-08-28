@@ -22,7 +22,7 @@ const ENDPOINT = "https://mern-chat-app-1eb8.onrender.com/";
 
 var socket, selectedChatCompare;
 
-const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesForMyChats }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
@@ -62,6 +62,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         config
       );
       setMessages(data);
+      // setMessagesForMyChats(data);
       setLoading(false);
 
       socket.emit("join chat", selectedChat._id);

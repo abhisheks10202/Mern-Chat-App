@@ -7,6 +7,7 @@ import { ChatState } from "../Context/ChatProvider";
 
 const Chatpage = () => {
   const [fetchAgain, setFetchAgain] = useState(false);
+  const [messagesForMyChats, setMessagesForMyChats] = useState([]);
   const { user } = ChatState();
 
   return (
@@ -19,9 +20,9 @@ const Chatpage = () => {
         h="91.5vh"
         p="10px"
       >
-        {user && <MyChats fetchAgain={fetchAgain} />}
+        {user && <MyChats fetchAgain={fetchAgain} messagesForMyChats={messagesForMyChats} />}
         {user && (
-          <Chatbox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+          <Chatbox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messagesForMyChats={messagesForMyChats} setmessagesForMyChats={setMessagesForMyChats} />
         )}
       </Box>
     </div>

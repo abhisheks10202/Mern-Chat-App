@@ -15,7 +15,7 @@ import { getSender, getSenderFull } from "../../config/ChatLogics";
 const ChatSetting = ({ selectedChat,setFetchAgain,fetchAgain,fetchMessages }) => {
 
     const toast = useToast();
-    const { user } = ChatState();
+    const { user,setSelectedChat } = ChatState();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -66,6 +66,9 @@ const ChatSetting = ({ selectedChat,setFetchAgain,fetchAgain,fetchMessages }) =>
             // Handle the response data as needed
             console.log(response.data, "after deleted emit");
             // Show success toast message
+            setFetchAgain(!fetchAgain)
+            setSelectedChat(null);
+            
             toast({
                 title: "Chat Deleted",
                 status: "success",
