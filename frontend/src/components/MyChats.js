@@ -97,6 +97,7 @@ const MyChats = ({ fetchAgain,messagesForMyChats }) => {
           >
             New Group Chat
           </Button>
+          
         </GroupChatModal>
       </Box>
       <ChatBot />

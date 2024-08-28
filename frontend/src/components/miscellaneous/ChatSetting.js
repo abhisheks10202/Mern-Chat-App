@@ -5,17 +5,17 @@ import { Flex } from "@chakra-ui/react";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { ChatState } from "../../Context/ChatProvider";
-import UpdateGroupChatModal from "../miscellaneous/GroupChatModal";
+import UpdateGroupChatModal from "../miscellaneous/UpdateGroupChatModal";
 import ProfileModal from "../miscellaneous/ProfileModal";
 import { getSender, getSenderFull } from "../../config/ChatLogics";
 
 
 
 
-const ChatSetting = ({ selectedChat,setFetchAgain,fetchAgain,fetchMessages }) => {
+const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages }) => {
 
     const toast = useToast();
-    const { user,setSelectedChat } = ChatState();
+    const { user, setSelectedChat } = ChatState();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -68,7 +68,7 @@ const ChatSetting = ({ selectedChat,setFetchAgain,fetchAgain,fetchMessages }) =>
             // Show success toast message
             setFetchAgain(!fetchAgain)
             setSelectedChat(null);
-            
+
             toast({
                 title: "Chat Deleted",
                 status: "success",
@@ -129,24 +129,32 @@ const ChatSetting = ({ selectedChat,setFetchAgain,fetchAgain,fetchMessages }) =>
                                 _hover={{ bg: "#38B2AC", color: "white" }}>
                                 Delete Chat
                             </Button>
-                            <Button variant="ghost" onClick={isGroupChat ? handleGroupProfile : handleViewProfile} colorScheme="#38B2AC"
-                                fontWeight="normal"
-                                _hover={{ bg: "#38B2AC", color: "white" }}>
-                                {isGroupChat ? "Group Profile" : "View Profile"}
-                            </Button>
-                                
+                          
+                            {!isGroupChat?
+                            (<ProfileModal user={getSenderFull(user, selectedChat.users)} >
+                                <Button variant="ghost"  colorScheme="#38B2AC" 
+        fontWeight="normal"
+        // d={{ base: "flex" }}
+        _hover={{ bg: "#38B2AC", color: "white" }}>
+        VIew Profile
+        {/* d={{ base: "flex" }} */}
+       </Button>
+                            </ProfileModal>):
+                               ( <UpdateGroupChatModal fetchMessages={fetchMessages}
+                                fetchAgain={fetchAgain} 
+                                setFetchAgain={setFetchAgain}>
 
-{/* {isGroupChat ? (
-            <UpdateGroupChatModal
-              fetchMessages={fetchMessages}
-              fetchAgain={fetchAgain}
-              setFetchAgain={setFetchAgain}
-            />
-            
-          ) : (
-            <ProfileModal user={getSenderFull(user, selectedChat.users)} />
-          )} */}
-                           
+<Button variant="ghost" colorScheme="#38B2AC"
+        fontWeight="normal"
+        // d={{ base: "flex" }}
+        _hover={{ bg: "#38B2AC", color: "white" }}>
+         Group Profile
+        {/* d={{ base: "flex" }} */}
+       </Button>
+
+                                </UpdateGroupChatModal>)
+                                }
+
 
                             <Button variant="ghost" onClick={handleBlockUser} colorScheme="#38B2AC"
                                 fontWeight="normal"
