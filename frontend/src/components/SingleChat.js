@@ -3,7 +3,7 @@ import { Input } from "@chakra-ui/input";
 import { Box, Text } from "@chakra-ui/layout";
 import { FaImage, FaVideo } from "react-icons/fa";
 import "./styles.css";
-import { IconButton, Spinner, useToast } from "@chakra-ui/react";
+import { IconButton, Spinner, useToast, InputGroup, InputLeftElement, Icon } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -344,8 +344,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
               /> */}
               <InputGroup>
   <InputLeftElement>
-    <Icon as={FaImage} color="gray.400" onClick={uploadImage} />
-    <Icon as={FaVideo} color="gray.400" onClick={uploadVideo} />
+    <Icon as={FaImage} color="gray.400"  />
+    <Icon as={FaVideo} color="gray.400" />
   </InputLeftElement>
   <Input
     variant="filled"
