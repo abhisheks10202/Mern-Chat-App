@@ -86,7 +86,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
       const updatedMessages = messages.filter((message) => message._id !== messageId);
       // setFetchAgain(!fetchAgain);
       setMessages(updatedMessages);
-      // setFetchAgain(!fetchAgain);
+      setFetchAgain(!fetchAgain);
 
       // socket.emit("deleted message", response);
       // Handle the response data as needed
@@ -143,6 +143,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
           : message
       );
       setMessages(updatedMessages);
+      setFetchAgain(!fetchAgain);
       toast({
         title: "Message Deleted for everyone",
         status: "success",
