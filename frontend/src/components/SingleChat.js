@@ -1,6 +1,7 @@
 import { FormControl } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Box, Text } from "@chakra-ui/layout";
+import { FaImage, FaVideo } from "react-icons/fa";
 import "./styles.css";
 import { IconButton, Spinner, useToast } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
@@ -106,12 +107,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
             },
           };
           const res = await axios.post('http://localhost:3000/api/chatbot/send-payload', { loggedUser, chatId, message }, config);
-          console.log(res);
-          // setResponse(res.data.text.replace(/\n/g, '\n\n'));
-
-          // socket.emit("new message", res.data);
-          // console.log(res.data);
-          // setMessages([...messages, res.data.text]);
+          const messages=res.data
+          console.log(res.data.message,"   res.data.message");
+          console.log(res.data.responseMessage,"   res.data.message");
+          console.log(res,"only response")
+          
+         messages=res.data.message
+        const obj1={
+          messages:res.data.message
+        }
+        const obj2={
+          messages:res.data.responseMessage
+        }
+          setMessages([...messages,obj1]);
+          messages=res.data.responseMessages;
+          setMessages([...messages, obj2]);
+          console.log(messages,"areyyyy isidbhb=================================================")
+          setFetchAgain(!fetchAgain);
+          setNewMessage("");
+         
 
         } catch (error) {
           console.error('Error:', error);
@@ -121,10 +135,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
       else {
         // Run API when "askchatbot@gmail.com" is not found
         // Call your other API here
-        console.log("Running other API", user.name);
+        // console.log("Running other API", user.name);
         socket.emit("stop typing", selectedChat._id);
         const receiverUserIds = users.filter(user => user._id !== loggedUser._id);
-        console.log(receiverUserIds, loggedUser._id);
+        // console.log(receiverUserIds, loggedUser._id);
         try {
           const config = {
             headers: {
@@ -146,7 +160,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
           );
           socket.emit("new message", data);
           setMessages([...messages, data]);
+          console.log(data,"else");
           setFetchAgain(!fetchAgain);
+
           console.log(fetchAgain, "from useEffect singleChat sendMessage");
         } catch (error) {
           toast({
@@ -294,6 +310,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
                 <ScrollableChat messages={messages}
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
+                  setMessages={setMessages}
                 />
 
               </div>
@@ -318,13 +335,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
               ) : (
                 <></>
               )}
-              <Input
+              {/* <Input
                 variant="filled"
                 bg="#E0E0E0"
                 placeholder="Enter a message.."
                 value={newMessage}
                 onChange={typingHandler}
-              />
+              /> */}
+              <InputGroup>
+  <InputLeftElement>
+    <Icon as={FaImage} color="gray.400" onClick={uploadImage} />
+    <Icon as={FaVideo} color="gray.400" onClick={uploadVideo} />
+  </InputLeftElement>
+  <Input
+    variant="filled"
+    bg="#E0E0E0"
+    placeholder="Enter a message.."
+    value={newMessage}
+    onChange={typingHandler}
+  />
+</InputGroup>
             </FormControl>
           </Box>
         </>

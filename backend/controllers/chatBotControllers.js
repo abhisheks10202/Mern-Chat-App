@@ -24,17 +24,19 @@ const payload = asyncHandler(async (req, res) => {
     payload: req.body.message,
 
   };
+  let message;
+  let responseObj
 
   try {
     const response = await axios.post(url, data, { headers });
-        res.json(response.data);
-        console.log("geloeo")
+        
+     
 
 
     //save the sender loggedi user message
     const content=data.payload;
     const chatId=info.chatId;
-    console.log(chatId);
+    // console.log(chatId);
 
     
 
@@ -50,8 +52,8 @@ const payload = asyncHandler(async (req, res) => {
     };
 
     try {
-      var message = await Message.create(newMessage);
-      console.log(message);
+      message = await Message.create(newMessage);
+      // console.log(message);
 
       message = await message.populate("sender", "name pic");
       message = await message.populate("chat");
@@ -77,17 +79,24 @@ const payload = asyncHandler(async (req, res) => {
     };
 
     try {
-      var message = await Message.create(newMessageForResponse);
+      var responseMessage = await Message.create(newMessageForResponse);
 
-      message = await message.populate("sender", "name pic");
-      message = await message.populate("chat");
-      message = await User.populate(message, {
+      responseMessage = await responseMessage.populate("sender", "name pic");
+      responseMessage = await responseMessage.populate("chat");
+      responseMessage = await User.populate(responseMessage, {
         path: "chat.users",
         select: "name pic email",
       });
-      console.log(message);
-      await Chat.findByIdAndUpdate(chatId, { latestMessage: message });
+      // console.log(message);
+      await Chat.findByIdAndUpdate(chatId, { latestMessage: responseMessage });
 
+      responseObj = {
+        message: message,
+        responseMessage: responseMessage,
+        line: "chatBot Controller 30 line"
+      };
+console.log(responseObj)
+res.json(responseObj);
       // res.json(message);
     } catch (error) {
       // res.status(400);
@@ -96,8 +105,8 @@ const payload = asyncHandler(async (req, res) => {
 
 
     // res.json(response.data);
-    console.log(info.loggedUserId);
-    console.log(chatId);
+    // console.log(info.loggedUserId);
+    // console.log(chatId);
 
 
 

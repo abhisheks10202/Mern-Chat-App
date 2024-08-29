@@ -7,7 +7,12 @@
   background-position: center;
   background-size: cover;
 }
+/* .App {
+  min-height: 100vh;
+  display: flex;
+  background-image: linear-gradient(to right top, #6b7ed1, #428cd7, #0098d4, #00a2cc, #00aac0, #00b4bd, #00beb6, #13c7aa, #1cd6a0, #40e491, #67f07b, #8ffb5f);
 
+} */
 ::-webkit-scrollbar {
   width: 0px;
 }

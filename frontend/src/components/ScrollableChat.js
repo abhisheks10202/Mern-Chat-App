@@ -48,7 +48,7 @@ import io from "socket.io-client";
 
 
 
-const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
+const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
   var socket, selectedChatCompare;
   const { user } = ChatState();
   const [showModal, setShowModal] = useState(false);
@@ -69,6 +69,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
     setMessageId(null);
     setShowModal(false);
   };
+ 
   const handleDeleteForMe = async () => {
     try {
       const config = {
@@ -82,6 +83,10 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
         config
       );
       
+      const updatedMessages = messages.filter((message) => message._id !== messageId);
+      // setFetchAgain(!fetchAgain);
+      setMessages(updatedMessages);
+      // setFetchAgain(!fetchAgain);
 
       // socket.emit("deleted message", response);
       // Handle the response data as needed
@@ -95,7 +100,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
         isClosable: true,
         position: "bottom",
       });
-      // setFetchAgain(!fetchAgain);
+   
     } catch (error) {
       console.log(error.response,"in catch errrorrror")
       const errorMessage = error.response.data.error;
@@ -129,12 +134,15 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
         `/api/message/${messageId}/delete-for-everyone`,
         config
       );
-      // socket.emit("deleted message", response);
-      console.log(response)
-      // Handle the response data as needed
-      // console.log(response.error);
-      closeModal();
-      // Show success toast message
+    
+
+     
+      const updatedMessages = messages.map((message) =>
+        message._id === messageId
+          ? { ...message, content: "Deleted for everyone", MessageDeletedForEveryone: true }
+          : message
+      );
+      setMessages(updatedMessages);
       toast({
         title: "Message Deleted for everyone",
         status: "success",
@@ -159,6 +167,9 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
     closeModal();
   };
 
+  useEffect(() => {
+console.log(messages,"messages")
+  }, [fetchAgain]);
  
 
   const shouldShowDateSeparator = (currentMessage, previousMessage) => {
@@ -206,6 +217,8 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,}) => {
                 }}
               >{m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
                 {m.content}
+                {/* {m.sender.name} */}
+                {/* {console.log(m)} */}
                 {m.MessageDeletedForEveryone === false ? <Tooltip label="Delete Message" fontSize="md">
                   <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />
                 </Tooltip> : <></>}
