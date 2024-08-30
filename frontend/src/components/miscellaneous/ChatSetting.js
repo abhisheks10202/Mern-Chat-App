@@ -108,7 +108,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
 
     const fetchBlocked = async () => {
         if (!selectedChat) return;
-        setIsBlocked(false);
+        setIsBlocked(false)
         console.log(messages)
 
         try {
@@ -127,6 +127,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
               console.log(data,"gedgg");
 
               messages.forEach((message) => {
+                setTimeout(() => {
                 if (message.chat && message.chat.users) {
                     message.chat.users.forEach((userId, index) => {
                         if (userId.toString() !== user._id.toString()) {
@@ -134,20 +135,25 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                             // console.log(userId,"hehehehehehehheh")
                         }
                     });
+                    
                 }
+            },1000 ); 
             });
             // console.log(messages)
 
-            data.forEach(item => {
-                setTimeout(() => {
-                  console.log([...blockedUserIds][0].toString(), item.blocked._id.toString() + " " + item.blocker.toString() + "  ", user._id.toString(), "khatma tatat ")
-                  if ([...blockedUserIds][0].toString() === item.blocked._id.toString() && item.blocker.toString() === user._id.toString()) {
-                    setIsBlocked(true);
-                  }
-                }, ); // Set the desired timeout value (in milliseconds)
-              });
+          
+            // data.forEach(item => {
+            //     setTimeout(() => {
+            //       console.log([...blockedUserIds][0].toString(), item.blocked._id.toString() + " " + item.blocker.toString() + "  ", user._id.toString(), "khatma tatat ")
+            //       if ([...blockedUserIds][0].toString() === item.blocked._id.toString() && item.blocker.toString() === user._id.toString()) {
+            //         setIsBlocked(true)
+            //       }
+            //     }, ); // Set the desired timeout value (in milliseconds)
+            //   });
               
             
+
+
 
 
         } catch (error) {
@@ -161,9 +167,6 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
             });
         }
     };
-    useEffect(() => {
-        fetchBlocked();
-      }, [selectedChat]);
 
 
     const firstBlockedUserId = [...blockedUserIds][0];
