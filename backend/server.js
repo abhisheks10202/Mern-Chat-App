@@ -5,6 +5,7 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const chatBotRoutes=require("./routes/chatBotRoutes")
 const messageRoutes = require("./routes/messageRoutes");
+const blockUsersRoutes=require("./routes/blockUsersRoutes")
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
 const helmet = require('helmet');
@@ -28,6 +29,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/chatbot", chatBotRoutes);
+app.use("/api/block", blockUsersRoutes);
 
 // --------------------------deployment------------------------------
 

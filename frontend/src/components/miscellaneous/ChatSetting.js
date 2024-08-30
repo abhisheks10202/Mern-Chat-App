@@ -12,10 +12,12 @@ import { getSender, getSenderFull } from "../../config/ChatLogics";
 
 
 
-const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages }) => {
+const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, messages }) => {
 
     const toast = useToast();
     const { user, setSelectedChat } = ChatState();
+    const blockedUserIds = new Set();
+    const [isBlocked,setIsBlocked]=useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -33,9 +35,8 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages })
         setIsModalOpen(false);
     };
 
-    const handleBlockUser = () => {
-        // Perform the block user action here
-    };
+   
+
 
     const handleViewProfile = () => {
         // Perform the view profile action here
@@ -105,10 +106,147 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages })
         // Perform any additional actions or logic here after the showProfileModal state changes
     }, [showProfileModal]);
 
+    const fetchBlocked = async () => {
+        if (!selectedChat) return;
+        setIsBlocked(false);
+        console.log(messages)
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
+            };
+
+            //   setLoading(true);
+            console.log(user._id)
+            const { data } = await axios.get(
+                `/api/block/${user._id}`,
+                config
+            );
+              console.log(data,"gedgg");
+
+              messages.forEach((message) => {
+                if (message.chat && message.chat.users) {
+                    message.chat.users.forEach((userId, index) => {
+                        if (userId.toString() !== user._id.toString()) {
+                            blockedUserIds.add(userId);
+                            // console.log(userId,"hehehehehehehheh")
+                        }
+                    });
+                }
+            });
+            // console.log(messages)
+
+            data.forEach(item => {
+                setTimeout(() => {
+                  console.log([...blockedUserIds][0].toString(), item.blocked._id.toString() + " " + item.blocker.toString() + "  ", user._id.toString(), "khatma tatat ")
+                  if ([...blockedUserIds][0].toString() === item.blocked._id.toString() && item.blocker.toString() === user._id.toString()) {
+                    setIsBlocked(true);
+                  }
+                }, ); // Set the desired timeout value (in milliseconds)
+              });
+              
+            
+
+
+        } catch (error) {
+            toast({
+                title: "Error Occured!",
+                description: "Failed to Load the Blocked",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+        }
+    };
+    useEffect(() => {
+        fetchBlocked();
+      }, [selectedChat]);
+
+
+    const firstBlockedUserId = [...blockedUserIds][0];
+    
+    const handleBlockUser = async(req,res) => {
+        // Perform the block user action here
+        if (!selectedChat) return;
+       
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
+            };
+            const { data } = await axios.post(
+                "/api/block",
+                {
+                  blockerId: user._id,
+                  blockedId: firstBlockedUserId,
+                },
+                config
+              );
+              toast({
+                title: "User blocked successfully",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+              });
+        } catch (error) {
+            toast({
+                title: "Error Occured!",
+                description: "Failed to Load the Blocked",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+        }
+    };
+    const handleUnblockUser = async(req,res) => {
+        // Perform the block user action here
+        if (!selectedChat) return;
+       
+
+        try {
+            const config = {
+                headers: {
+                  "Content-type": "application/json",
+                  Authorization: `Bearer ${user.token}`,
+                },
+              };
+            const { data } = await axios.delete(
+                "/api/block/unblock",
+                {
+                  blockerId: user._id,
+                  blockedId: firstBlockedUserId,
+                },
+                config
+              );
+              toast({
+                title: "User unblocked successfully",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+              });
+        } catch (error) {
+            toast({
+                title: "Error Occured!",
+                description: "Failed Unblock the User",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+            });
+        }
+    };
 
     return (
         <>
-            <HamburgerIcon ml={3} onClick={handleHamburgerClick} onMouseLeave={handleHamburgerMouseLeave}
+            <HamburgerIcon ml={3} onClick={() => { handleHamburgerClick(); fetchBlocked(); }} onMouseLeave={handleHamburgerMouseLeave}
                 cursor="pointer"
                 color={isHovered ? "red" : "black"}
                 _hover={{ color: "#38B2AC" }} />
@@ -129,38 +267,37 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages })
                                 _hover={{ bg: "#38B2AC", color: "white" }}>
                                 Delete Chat
                             </Button>
-                          
-                            {!isGroupChat?
-                            (<ProfileModal user={getSenderFull(user, selectedChat.users)} >
-                                <Button variant="ghost"  colorScheme="#38B2AC" 
-        fontWeight="normal"
-        // d={{ base: "flex" }}
-        _hover={{ bg: "#38B2AC", color: "white" }}>
-        VIew Profile
-        {/* d={{ base: "flex" }} */}
-       </Button>
-                            </ProfileModal>):
-                               ( <UpdateGroupChatModal fetchMessages={fetchMessages}
-                                fetchAgain={fetchAgain} 
-                                setFetchAgain={setFetchAgain}>
 
-<Button variant="ghost" colorScheme="#38B2AC"
-        fontWeight="normal"
-        // d={{ base: "flex" }}
-        _hover={{ bg: "#38B2AC", color: "white" }}>
-         Group Profile
-        {/* d={{ base: "flex" }} */}
-       </Button>
+                            {!isGroupChat ?
+                                (<ProfileModal user={getSenderFull(user, selectedChat.users)} >
+                                    <Button variant="ghost" colorScheme="#38B2AC"
+                                        fontWeight="normal"
+                                        // d={{ base: "flex" }}
+                                        _hover={{ bg: "#38B2AC", color: "white" }}>
+                                        VIew Profile
+                                        {/* d={{ base: "flex" }} */}
+                                    </Button>
+                                </ProfileModal>) :
+                                (<UpdateGroupChatModal fetchMessages={fetchMessages}
+                                    fetchAgain={fetchAgain}
+                                    setFetchAgain={setFetchAgain}>
+
+                                    <Button variant="ghost" colorScheme="#38B2AC"
+                                        fontWeight="normal"
+                                        // d={{ base: "flex" }}
+                                        _hover={{ bg: "#38B2AC", color: "white" }}>
+                                        Group Profile
+                                        {/* d={{ base: "flex" }} */}
+                                    </Button>
 
                                 </UpdateGroupChatModal>)
-                                }
+                            }
 
 
-                            <Button variant="ghost" onClick={handleBlockUser} colorScheme="#38B2AC"
-                                fontWeight="normal"
-                                _hover={{ bg: "#38B2AC", color: "white" }}>
-                                Block User
-                            </Button>
+<Button variant="ghost" onClick={isBlocked ? handleUnblockUser : handleBlockUser} colorScheme="#38B2AC" fontWeight="normal" _hover={{ bg: "#38B2AC", color: "white" }}>
+  {!isGroupChat && !isBlocked ?"Block user" : "Unblock User"}
+</Button>
+
                             {/* ... and so on ... */}
                         </Flex>
                     </ModalBody>

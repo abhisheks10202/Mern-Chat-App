@@ -125,7 +125,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
           console.log(messages,"areyyyy isidbhb=================================================")
           setFetchAgain(!fetchAgain);
           setNewMessage("");
-         
+  
 
         } catch (error) {
           console.error('Error:', error);
@@ -281,7 +281,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
 
                 </>
               ))}
-              <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
+              <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messages={messages}/>
           </Text>
           {/* </Flex> */}
 
