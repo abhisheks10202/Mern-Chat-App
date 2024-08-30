@@ -143,6 +143,14 @@ function SideDrawer() {
             </Text>
           </Button>
         </Tooltip>
+        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="abhisheks10202" data-color="#a55555" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#ffffff" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
+        <a href="https://www.buymeacoffee.com/abhisheks10202" target="_blank" rel="noopener noreferrer">
+        <img
+          src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+          alt="Buy Me A Coffee"
+          style={{ height: '30px', width: '108px' }} // Adjusted size
+        />
+      </a>
         <Text fontSize="2xl" fontFamily="Work sans">
           Talk-A-Tive
         </Text>
