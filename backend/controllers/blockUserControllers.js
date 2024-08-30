@@ -8,7 +8,7 @@ const Blocked = require("../models/blockedUserModel");
 //@route           POST /api/chat/
 //@access          Protected
 const blocked = asyncHandler(async (req, res) => {
-    const { blockerId, blockedId } = req.body;
+  const { blockerId, blockedId } = req.body;
 
   // Check if the combination of blockerId and blockedId already exists
   const existingBlocked = await Blocked.findOne({ blocker: blockerId, blocked: blockedId });
@@ -32,25 +32,64 @@ const blocked = asyncHandler(async (req, res) => {
 });
 
 const unblocked = asyncHandler(async (req, res) => {
-    const { blockerId, blockedId } = req.body;
-    
-    try {
-        const blockedData = await Blocked.findOne({ blocker: blockerId, blocked: blockedId });
-    console.log(blockedData);
+  const { blockerId, blockedId } = req.body;
+
+  try {
+
+
+
+
+    const blockedData = await Blocked.findOne({ blocker: blockerId, blocked: blockedId });
+    // console.log(blockedData);
     if (blockedData) {
-        await Blocked.deleteOne({ _id: blockedData._id });
-        res.status(200).send({ message: 'User unblocked successfully.' });
-      } else {
-        res.status(404).send({ error: 'Matching record not found.' });
-      }
-    } catch (error) {
-      res.status(500).send({ error: 'An error occurred while unblocking the user.' });
+      await Blocked.deleteOne({ _id: blockedData._id });
+      res.status(200).send({ message: 'User unblocked successfully.' });
+    } else {
+      res.status(404).send({ error: 'Matching record not found.' });
     }
+  } catch (error) {
+    res.status(500).send({ error: 'An error occurred while unblocking the user.' });
+  }
+});
+const checkBlockStatus = asyncHandler(async (req, res) => {
+  const { chatId, blocker} = req.params;
+ 
+  // console.log(blocker,blocked)
+
+  if (!chatId || !blocker) {
+    return res.status(400).json({ error: 'Missing chatId or blocked parameter' });
+  }
+
+  try {
+    let blockedUserIdsArray = [];
+    const chat = await Chat.findOne({ _id: chatId })
+    // console.log(chat);
+    if (chat && chat.users) {
+      blockedUserIdsArray = chat.users.filter(userId => userId.toString() !== blocker.toString());
+      console.log('Blocked User IDs:', blockedUserIdsArray);
+      console.log(" ----"+blockedUserIdsArray[0] );
+    }
+    console.log("hellodfdd"+chatId)
+   
+    if (blockedUserIdsArray.length > 0) {
+      console.log("hello"+chatId)
+      const block = await Blocked.findOne({ blocker: blocker, blocked: blockedUserIdsArray[0] });
+      if (block) {
+          return res.json({ isBlocked: true });
+      } else {
+          return res.json({ isBlocked: false });
+      }
+  } else {
+      return res.json({ isBlocked: false, message: 'No users to block' });
+  }
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 const fetchBlockedUsers = asyncHandler(async (req, res) => {
-    const { blockerId } = req.params;
-    console.log(blockerId,"blocker id",);
+  const { blockerId } = req.params;
+  console.log(blockerId, "blocker id",);
 
   try {
     const blockedUsers = await Blocked.find({ blocker: blockerId }).populate('blocked');
@@ -65,6 +104,6 @@ const fetchBlockedUsers = asyncHandler(async (req, res) => {
 
 
 module.exports = {
-  blocked,unblocked,fetchBlockedUsers
+  blocked, unblocked, checkBlockStatus, fetchBlockedUsers
 };
 

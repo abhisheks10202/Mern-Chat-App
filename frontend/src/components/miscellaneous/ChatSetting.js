@@ -17,14 +17,55 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
     const toast = useToast();
     const { user, setSelectedChat } = ChatState();
     const blockedUserIds = new Set();
-    const [isBlocked,setIsBlocked]=useState(false);
+
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const chatId = selectedChat._id;
     const [showProfileModal, setShowProfileModal] = useState(false);
     const isGroupChat = selectedChat.isGroupChat;
-    // const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const [blocker, setBlocker] = useState('');
+    const [blocked, setBlocked] = useState('');
+    const [isBlocked, setIsBlocked] = useState(null);
+    const [error, setError] = useState(null);
+
+    const handleCheckBlockStatus = async () => {
+        setIsBlocked(false);
+        const chatId=selectedChat._id;
+        console.log()
+        setBlocker(user._id);
+      
+        try {
+            // const response = await axios.get(`/api/block/check-block-status?chatId=${chatId}&blocker=${blocker}`, {
+            //     method: 'GET',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${user.token}` // Add your token here if required
+            //     }
+            // });
+            const response = await axios.get(`/api/block/check-block-status`, {
+                params: {
+                    chatId: chatId,
+                    blocker: blocker
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}` // Add your token here if required
+                }
+            });
+
+            if (!response) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setIsBlocked(data);
+            console.log(isBlocked+"hxjkbdkjbxmjcb"+data)
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
 
     const handleHamburgerClick = () => {
         setIsModalOpen(true);
@@ -34,9 +75,6 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
     const handleCloseModal = () => {
         setIsModalOpen(false);
     };
-
-   
-
 
     const handleViewProfile = () => {
         // Perform the view profile action here
@@ -106,75 +144,79 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
         // Perform any additional actions or logic here after the showProfileModal state changes
     }, [showProfileModal]);
 
-    const fetchBlocked = async () => {
-        if (!selectedChat) return;
-        setIsBlocked(false)
-        console.log(messages)
+    // useEffect(() => {
+    //     handleCheckBlockStatus()
+    // }, [selectedChat]);
 
-        try {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
+    // const fetchBlocked = async () => {
+    //     if (!selectedChat) return;
+    //     setIsBlocked(false)
+    //     console.log(messages)
 
-            //   setLoading(true);
-            console.log(user._id)
-            const { data } = await axios.get(
-                `/api/block/${user._id}`,
-                config
-            );
-              console.log(data,"gedgg");
+    //     try {
+    //         const config = {
+    //             headers: {
+    //                 Authorization: `Bearer ${user.token}`,
+    //             },
+    //         };
 
-              messages.forEach((message) => {
-                setTimeout(() => {
-                if (message.chat && message.chat.users) {
-                    message.chat.users.forEach((userId, index) => {
-                        if (userId.toString() !== user._id.toString()) {
-                            blockedUserIds.add(userId);
-                            // console.log(userId,"hehehehehehehheh")
-                        }
-                    });
-                    
-                }
-            },1000 ); 
-            });
-            // console.log(messages)
+    //         //   setLoading(true);
+    //         console.log(user._id)
+    //         const { data } = await axios.get(
+    //             `/api/block/${user._id}`,
+    //             config
+    //         );
+    //         console.log(data, "gedgg");
 
-          
-            // data.forEach(item => {
-            //     setTimeout(() => {
-            //       console.log([...blockedUserIds][0].toString(), item.blocked._id.toString() + " " + item.blocker.toString() + "  ", user._id.toString(), "khatma tatat ")
-            //       if ([...blockedUserIds][0].toString() === item.blocked._id.toString() && item.blocker.toString() === user._id.toString()) {
-            //         setIsBlocked(true)
-            //       }
-            //     }, ); // Set the desired timeout value (in milliseconds)
-            //   });
-              
-            
+    //         // messages.forEach((message) => {
+    //         //     setTimeout(() => {
+    //         //         if (message.chat && message.chat.users) {
+    //         //             message.chat.users.forEach((userId, index) => {
+    //         //                 if (userId.toString() !== user._id.toString()) {
+    //         //                     blockedUserIds.add(userId);
+    //         //                     // console.log(userId,"hehehehehehehheh")
+    //         //                 }
+    //         //             });
+
+    //         //         }
+    //         //     }, 1000);
+    //         // });
+    //         // console.log(messages)
 
 
+    //         // data.forEach(item => {
+    //         //     setTimeout(() => {
+    //         //       console.log([...blockedUserIds][0].toString(), item.blocked._id.toString() + " " + item.blocker.toString() + "  ", user._id.toString(), "khatma tatat ")
+    //         //       if ([...blockedUserIds][0].toString() === item.blocked._id.toString() && item.blocker.toString() === user._id.toString()) {
+    //         //         setIsBlocked(true)
+    //         //       }
+    //         //     }, ); // Set the desired timeout value (in milliseconds)
+    //         //   });
 
 
-        } catch (error) {
-            toast({
-                title: "Error Occured!",
-                description: "Failed to Load the Blocked",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-                position: "bottom",
-            });
-        }
-    };
+
+
+
+
+    //     } catch (error) {
+    //         toast({
+    //             title: "Error Occured!",
+    //             description: "Failed to Load the Blocked",
+    //             status: "error",
+    //             duration: 5000,
+    //             isClosable: true,
+    //             position: "bottom",
+    //         });
+    //     }
+    // };
 
 
     const firstBlockedUserId = [...blockedUserIds][0];
-    
-    const handleBlockUser = async(req,res) => {
+
+    const handleBlockUser = async (req, res) => {
         // Perform the block user action here
         if (!selectedChat) return;
-       
+
 
         try {
             const config = {
@@ -185,18 +227,18 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
             const { data } = await axios.post(
                 "/api/block",
                 {
-                  blockerId: user._id,
-                  blockedId: firstBlockedUserId,
+                    blockerId: user._id,
+                    blockedId: firstBlockedUserId,
                 },
                 config
-              );
-              toast({
+            );
+            toast({
                 title: "User blocked successfully",
                 status: "success",
                 duration: 5000,
                 isClosable: true,
                 position: "bottom",
-              });
+            });
         } catch (error) {
             toast({
                 title: "Error Occured!",
@@ -208,33 +250,33 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
             });
         }
     };
-    const handleUnblockUser = async(req,res) => {
+    const handleUnblockUser = async (req, res) => {
         // Perform the block user action here
         if (!selectedChat) return;
-       
+
 
         try {
             const config = {
                 headers: {
-                  "Content-type": "application/json",
-                  Authorization: `Bearer ${user.token}`,
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${user.token}`,
                 },
-              };
+            };
             const { data } = await axios.delete(
                 "/api/block/unblock",
                 {
-                  blockerId: user._id,
-                  blockedId: firstBlockedUserId,
+                    blockerId: user._id,
+                    blockedId: firstBlockedUserId,
                 },
                 config
-              );
-              toast({
+            );
+            toast({
                 title: "User unblocked successfully",
                 status: "success",
                 duration: 5000,
                 isClosable: true,
                 position: "bottom",
-              });
+            });
         } catch (error) {
             toast({
                 title: "Error Occured!",
@@ -249,7 +291,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
 
     return (
         <>
-            <HamburgerIcon ml={3} onClick={() => { handleHamburgerClick(); fetchBlocked(); }} onMouseLeave={handleHamburgerMouseLeave}
+            <HamburgerIcon ml={3} onClick={() => { handleHamburgerClick();handleCheckBlockStatus() }} onMouseLeave={handleHamburgerMouseLeave}
                 cursor="pointer"
                 color={isHovered ? "red" : "black"}
                 _hover={{ color: "#38B2AC" }} />
@@ -297,9 +339,9 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                             }
 
 
-<Button variant="ghost" onClick={isBlocked ? handleUnblockUser : handleBlockUser} colorScheme="#38B2AC" fontWeight="normal" _hover={{ bg: "#38B2AC", color: "white" }}>
-  {!isGroupChat && !isBlocked ?"Block user" : "Unblock User"}
-</Button>
+                            <Button variant="ghost" onClick={isBlocked ? handleUnblockUser : handleBlockUser} colorScheme="#38B2AC" fontWeight="normal" _hover={{ bg: "#38B2AC", color: "white" }}>
+                                {!isGroupChat && !isBlocked ? "Block user" : "Unblock User"}
+                            </Button>
 
                             {/* ... and so on ... */}
                         </Flex>
