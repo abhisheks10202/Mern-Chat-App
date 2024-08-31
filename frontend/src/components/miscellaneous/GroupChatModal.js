@@ -41,6 +41,7 @@ const GroupChatModal = ({ children }) => {
       });
       return;
     }
+    console.log(selectedUsers)
 
     setSelectedUsers([...selectedUsers, userToAdd]);
   };
