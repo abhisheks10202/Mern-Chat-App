@@ -41,12 +41,12 @@ const GroupChatModal = ({ children }) => {
       });
       return;
     }
-    console.log(selectedUsers)
 
     setSelectedUsers([...selectedUsers, userToAdd]);
   };
 
   const handleSearch = async (query) => {
+    setSearchResult("");
     setSearch(query);
     if (!query) {
       return;
@@ -63,6 +63,7 @@ const GroupChatModal = ({ children }) => {
       console.log(data);
       setLoading(false);
       setSearchResult(data);
+      setSearch("");
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -106,6 +107,9 @@ const GroupChatModal = ({ children }) => {
         config
       );
       setChats([data, ...chats]);
+      setSelectedUsers("");
+      setSearchResult("")
+      
       onClose();
       toast({
         title: "New Group Chat Created!",
@@ -136,13 +140,13 @@ const GroupChatModal = ({ children }) => {
           <ModalHeader
             fontSize="35px"
             fontFamily="Work sans"
-            display="flex"
+            d="flex"
             justifyContent="center"
           >
             Create Group Chat
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody display="flex" flexDir="column" alignItems="center">
+          <ModalBody d="flex" flexDir="column" alignItems="center">
             <FormControl>
               <Input
                 placeholder="Chat Name"
@@ -157,30 +161,34 @@ const GroupChatModal = ({ children }) => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
-            <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedUsers.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleDelete(u)}
-                  
-                />
-              ))}
-            </Box>
-            {loading ? (
-              // <ChatLoading />
-              <div>Loading...</div>
-            ) : (
-              searchResult
-                ?.slice(0, 4)
-                .map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleGroup(user)}
+            <Box w="100%" d="flex" flexWrap="wrap">
+              {selectedUsers?(
+                selectedUsers.map((u) => (
+                  <UserBadgeItem
+                    key={u._id}
+                    user={u}
+                    handleFunction={() => handleDelete(u)}
                   />
                 ))
-            )}
+              ):<></>}
+              
+            </Box>
+            {loading ? (
+  // <ChatLoading />
+  <div>Loading...</div>
+) : (
+  searchResult ? (
+    searchResult.slice(0, 4).map((user) => (
+      <UserListItem
+        key={user._id}
+        user={user}
+        handleFunction={() => handleGroup(user)}
+      />
+    ))
+  ) : (
+    <></>
+  )
+)}
           </ModalBody>
           <ModalFooter>
             <Button onClick={handleSubmit} colorScheme="blue">

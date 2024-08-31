@@ -11,14 +11,12 @@ const UserBadgeItem = ({ user, handleFunction, admin }) => {
       mb={2}
       variant="solid"
       fontSize={12}
-      colorScheme="teal"
-      // color={admin === user._id ? "red" : "pink"}
+      colorScheme="purple"
       cursor="pointer"
       onClick={handleFunction}
     >
       {user.name}
-      {console.log(admin,user)}
-      {admin?(admin._id === user._id && <span> (Admin)</span>):<></>}
+      {admin === user._id && <span> (Admin)</span>}
       <CloseIcon pl={1} />
     </Badge>
   );
