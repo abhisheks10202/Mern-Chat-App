@@ -33,12 +33,8 @@ const blocked = asyncHandler(async (req, res) => {
 
 const unblocked = asyncHandler(async (req, res) => {
   const { blockerId, blockedId } = req.body;
-
+console.log(blockerId,blockedId+" unbloked 36")
   try {
-
-
-
-
     const blockedData = await Blocked.findOne({ blocker: blockerId, blocked: blockedId });
     // console.log(blockedData);
     if (blockedData) {
@@ -52,36 +48,38 @@ const unblocked = asyncHandler(async (req, res) => {
   }
 });
 const checkBlockStatus = asyncHandler(async (req, res) => {
-  const { chatId, blocker} = req.params;
+  const { blocked, blocker} = req.query;
  
-  // console.log(blocker,blocked)
+  console.log(blocker,blocked)
 
-  if (!chatId || !blocker) {
+  if (!blocked || !blocker) {
     return res.status(400).json({ error: 'Missing chatId or blocked parameter' });
   }
 
   try {
     let blockedUserIdsArray = [];
-    const chat = await Chat.findOne({ _id: chatId })
-    // console.log(chat);
-    if (chat && chat.users) {
-      blockedUserIdsArray = chat.users.filter(userId => userId.toString() !== blocker.toString());
-      console.log('Blocked User IDs:', blockedUserIdsArray);
-      console.log(" ----"+blockedUserIdsArray[0] );
-    }
-    console.log("hellodfdd"+chatId)
+    // const chat = await Chat.findOne({ _id: chatId })
+    // // console.log(chat);
+    // if (chat && chat.users) {
+    //   blockedUserIdsArray = chat.users.filter(userId => userId.toString() !== blocker.toString());
+    //   console.log('Blocked User IDs:', blockedUserIdsArray);
+    //   console.log(" ----"+blockedUserIdsArray[0] );
+    // }
+    // console.log("hellodfdd"+chatId)
    
-    if (blockedUserIdsArray.length > 0) {
-      console.log("hello"+chatId)
-      const block = await Blocked.findOne({ blocker: blocker, blocked: blockedUserIdsArray[0] });
+    // if (blockedUserIdsArray.length > 0) {
+      // console.log("hello"+chatId)
+      // const block = await Blocked.findOne({ blocker: blocker, blocked: blockedUserIdsArray[0] });
+      const block = await Blocked.findOne({ blocker: blocker, blocked: blocked });
       if (block) {
+        console.log("hello")
           return res.json({ isBlocked: true });
       } else {
           return res.json({ isBlocked: false });
       }
-  } else {
-      return res.json({ isBlocked: false, message: 'No users to block' });
-  }
+  // } else {
+  //     return res.json({ isBlocked: false, message: 'No users to block' });
+  // }
   } catch (err) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }

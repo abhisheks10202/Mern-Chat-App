@@ -9,6 +9,7 @@ const blockUsersRoutes=require("./routes/blockUsersRoutes")
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
 const helmet = require('helmet');
+const cors = require('cors');
 
 
 
@@ -60,10 +61,21 @@ const server = app.listen(
   console.log(`Server running on PORT ${PORT}...`.yellow.bold)
 );
 
+// const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   }
+// }));
+
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000","http://127.0.0.1:3000"],
     // credentials: true,
   },
   // cors: {
@@ -73,6 +85,12 @@ const io = require("socket.io")(server, {
   // },
 });
 
+// const io = require("socket.io")(server, {
+//   pingTimeout: 60000,
+//   cors: {
+//     origin: allowedOrigins,
+//   },
+// });
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {

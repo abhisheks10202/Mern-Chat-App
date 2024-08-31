@@ -150,7 +150,7 @@ const MyChats = ({ fetchAgain,messagesForMyChats }) => {
                           ? "Yesterday"
                           : moment(chat.latestMessage.createdAt).format('DD/MM/YY')
                       }
-                      {console.log(chat.latestMessage.createdAt)}
+                      {/* {console.log(chat.latestMessage.createdAt)} */}
                       
                     </div>
 
