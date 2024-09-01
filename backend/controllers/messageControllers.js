@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Message = require("../models/messageModel");
 const User = require("../models/userModel");
 const Chat = require("../models/chatModel");
+const Blocked = require("../models/blockedUserModel");
 
 //@description     Get all Messages
 //@route           GET /api/Message/:chatId
@@ -23,19 +24,23 @@ const allMessages = asyncHandler(async (req, res) => {
 //@access          Protected
 const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId,receiverUserIds} = req.body;
-console.log(receiverUserIds)
+console.log(chatId+" send message"+ chatId._id+" chatID._id"+receiverUserIds[0]._id)
 
   if (!content || !chatId||!receiverUserIds) {
     console.log("Invalid data passed into request");
     return res.sendStatus(400);
   }
-
+ 
+  
   var newMessage = {
     sender: req.user._id,
     content: content,
     chat: chatId,
     receiver: receiverUserIds,
   };
+   //for reverse isBlock status check (is receiver blocked me or not)
+   
+  
 
   try {
     var message = await Message.create(newMessage);
@@ -50,8 +55,17 @@ console.log(receiverUserIds)
     await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
     for (const receiverUserId of receiverUserIds) {
       // Check if the receiverUserId matches any receiver in the message model
-      console.log(receiverUserId)
-     
+      console.log(chatId.isGroupChat+"chat id")
+      if(!chatId.isGroupChat)
+        {
+         const block = await Blocked.findOne({ blocker: receiverUserIds[0]._id , blocked:req.user._id });
+         console.log(block+" isBlocked")
+         if (block) {
+          message.MessageDeletedFor.push(receiverUserIds[0]._id);
+          await message.save();
+        } 
+         
+        }
         console.log("yes")
         // Find the chat and remove the chatVisible field for the receiver
        

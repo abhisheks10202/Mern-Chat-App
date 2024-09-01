@@ -5,7 +5,7 @@ import { FaImage, FaVideo } from "react-icons/fa";
 import "./styles.css";
 import { IconButton, Spinner, useToast, InputGroup, InputLeftElement, Icon } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext} from "react";
 import axios from "axios";
 import { ArrowBackIcon, HamburgerIcon } from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
@@ -18,12 +18,14 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter,
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import ChatSetting from "./miscellaneous/ChatSetting";
+import { BlockContext } from "../Context/BlockContext";
 // const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 const ENDPOINT = "https://mern-chat-app-1eb8.onrender.com/";
 
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesForMyChats }) => {
+  const { isBlocked } = useContext(BlockContext);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
@@ -154,6 +156,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
             {
               content: newMessage,
               chatId: selectedChat,
+              // selectedChat:selectedChat,
               receiverUserIds:receiverUserIds
             },
             config
@@ -348,12 +351,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
     <Icon as={FaVideo} color="gray.400" />
   </InputLeftElement>
   <Input
-    variant="filled"
-    bg="#E0E0E0"
-    placeholder="Enter a message.."
-    value={newMessage}
-    onChange={typingHandler}
-  />
+                variant="filled"
+                bg="#E0E0E0"
+                placeholder={isBlocked ? "You blocked this user" : "Enter a message.."}
+                value={newMessage}
+                onChange={typingHandler}
+                isDisabled={isBlocked}
+            />
 </InputGroup>
             </FormControl>
           </Box>
@@ -367,7 +371,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
           h="100%"
         >
           <Text fontSize="3xl" pb={3} fontFamily="Work sans">
-            Click on a user to start chatting
+           Click on a user to start chatting
           </Text>
         </Box>
       )}

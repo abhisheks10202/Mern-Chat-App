@@ -1,6 +1,6 @@
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@chakra-ui/react";
 import { ArrowBackIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useContext } from "react";
 import { Flex } from "@chakra-ui/react";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
@@ -8,6 +8,7 @@ import { ChatState } from "../../Context/ChatProvider";
 import UpdateGroupChatModal from "../miscellaneous/UpdateGroupChatModal";
 import ProfileModal from "../miscellaneous/ProfileModal";
 import { getSender, getSenderFull } from "../../config/ChatLogics";
+import { BlockContext } from "../../Context/BlockContext";
 
 
 
@@ -16,6 +17,9 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
 
     const toast = useToast();
     const { user, setSelectedChat } = ChatState();
+    const { isBlocked, setIsBlocked } = useContext(BlockContext);
+    const { blocker, setBlocker } = useContext(BlockContext);
+    const { blocked, setBlocked } = useContext(BlockContext);
     const blockedUserIds = new Set();
 
 
@@ -25,9 +29,8 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
     const [showProfileModal, setShowProfileModal] = useState(false);
     const isGroupChat = selectedChat.isGroupChat;
 
-    const [blocker, setBlocker] = useState('');
-    const [blocked, setBlocked] = useState('');
-    const [isBlocked, setIsBlocked] = useState(null);
+    
+    
     const [error, setError] = useState(null);
 
     const handleCheckBlockStatus = async () => {
@@ -139,6 +142,10 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
     }, [selectedChat]);
 
     useEffect(() => {
+        setFetchAgain(!fetchAgain)
+    }, [isBlocked]);
+
+    useEffect(() => {
         // Perform any additional actions or logic here after the showProfileModal state changes
     }, [showProfileModal]);
 
@@ -220,13 +227,13 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
             const config = {
                 headers: {
                     Authorization: `Bearer ${user.token}`,
-                     'Content-Type': 'application/json'
+                    
                 },
             };
             const { data } = await axios.delete(
                 "/api/block/unblock",
                 {
-                    blockerId: user._id,
+                    blockerId: blocker,
                     blockedId: blocked,
                 },
                 config
@@ -238,6 +245,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                 isClosable: true,
                 position: "bottom",
             });
+            setIsBlocked(false);
         } catch (error) {
             toast({
                 title: "Error Occured!",
@@ -276,6 +284,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                 isClosable: true,
                 position: "bottom",
             });
+            setIsBlocked(true);
         } catch (error) {
             toast({
                 title: "Error Occured!",
@@ -342,6 +351,8 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                             <Button variant="ghost" onClick={!isBlocked ? handleBlockUser : handleUnblockUser} colorScheme="#38B2AC" fontWeight="normal" _hover={{ bg: "#38B2AC", color: "white" }}>
                                 {!isGroupChat && !isBlocked ? "Block user" : "Unblock User"}
                             </Button>
+
+                        
 
                             {/* ... and so on ... */}
                         </Flex>

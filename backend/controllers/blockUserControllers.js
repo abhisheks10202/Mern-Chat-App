@@ -33,7 +33,9 @@ const blocked = asyncHandler(async (req, res) => {
 
 const unblocked = asyncHandler(async (req, res) => {
   const { blockerId, blockedId } = req.body;
-console.log(blockerId,blockedId+" unbloked 36")
+  console.log(blockerId,blockedId+"blockUserCOntroller unblocked")
+
+  // Check if the combination of blockerId and blockedId already exists
   try {
     const blockedData = await Blocked.findOne({ blocker: blockerId, blocked: blockedId });
     // console.log(blockedData);
@@ -47,6 +49,8 @@ console.log(blockerId,blockedId+" unbloked 36")
     res.status(500).send({ error: 'An error occurred while unblocking the user.' });
   }
 });
+
+
 const checkBlockStatus = asyncHandler(async (req, res) => {
   const { blocked, blocker} = req.query;
  

@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.route("/check-block-status").get(protect, checkBlockStatus);
 router.route("/").post(protect, blocked);
-router.route("/unblock").delete( protect,unblocked);
+router.route("/unblock").delete(protect,unblocked);
 
 router.route("/:blockerId").get(protect, fetchBlockedUsers);
 
