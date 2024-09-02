@@ -1,7 +1,7 @@
 import { FormControl } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Box, Text } from "@chakra-ui/layout";
-import { FaImage, FaVideo } from "react-icons/fa";
+import { FaImage, FaPauseCircle, FaVideo } from "react-icons/fa";
 import "./styles.css";
 import { IconButton, Spinner, useToast, InputGroup, InputLeftElement, Icon, HStack } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
@@ -19,10 +19,15 @@ import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import ChatSetting from "./miscellaneous/ChatSetting";
 import { BlockContext } from "../Context/BlockContext";
-import Picker from 'emoji-picker-react';
+
 import React, { useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import WaveSurfer from 'wavesurfer.js';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faMicrophone, faPaperclip, faSmile, faPaperPlane, faPause } from '@fortawesome/free-solid-svg-icons';
+import EmojiPicker from "./miscellaneous/EmojiPicker";
+import FilePicker from "./miscellaneous/FilePicker";
 
 
 // const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
@@ -47,13 +52,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
 
 
   const [message, setMessage] = useState('');
+  const [file, setFile] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
-  const [file, setFile] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [waveform, setWaveform] = useState(null);
   const mediaRecorderRef = useRef(null);
-  const inputRef = useRef(null);
-  const emojiPickerRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const inputRef = useRef();
+  const timerRef = useRef(null);
 
 
   const defaultOptions = {
@@ -268,79 +277,96 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
 
 
   const handleSend = async () => {
+  console.log("audio file")
+
     const formData = new FormData();
-    formData.append('text', newMessage);
+    
+    // If the user enters a text message
+    if (newMessage) {
+        formData.append('content', newMessage); // Append text message
+    }
+    
+    // If the user recorded audio
     if (audioBlob) {
-      formData.append('file', audioBlob, 'audio.webm');
+        formData.append('audio', audioBlob, 'audio.webm'); // File upload
     }
-    if (file) {
-      formData.append('file', file);
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    try {
+      const response = await fetch('api/message', {
+        method: 'POST',
+        body: formData,
+        ...config, // Spread operator to include headers
+    });
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error('Error sending message:', errorResponse);
+            return;
+        }
+        const data = await response.json(); // The saved message with both text and audio URL
+        console.log('Message sent successfully:', data);
+        
+        // Further handle state resets...
+    } catch (error) {
+        console.error('Error:', error);
     }
+  };
 
-    const response = await fetch('http://localhost:5000/messages', {
-      method: 'POST',
-      body: formData,
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    audioChunksRef.current = [];
+    mediaRecorder.start();
+    mediaRecorder.addEventListener('dataavailable', (event) => {
+      audioChunksRef.current.push(event.data);
     });
-
-    const data = await response.json();
-    setNewMessage('');
-    setAudioBlob(null);
-    setFile(null);
-  };
-
-  const handleEmojiClick = (emojiObject, event) => {
-    // if (inputRef.current) {
-    //   const cursorPosition = inputRef.current.selectionStart;
-    //   const textBeforeCursor = newMessage.substring(0, cursorPosition);
-    //   const textAfterCursor = newMessage.substring(cursorPosition);
-    //   const newText = textBeforeCursor + emojiObject.emoji + textAfterCursor;
-    //   setNewMessage(newText);
-    // } else {
-    //   console.error("inputRef.current is null");
-    // }
-    setNewMessage((prevInput) => prevInput + emojiObject.emoji);
-  };
-
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
-
-  const startRecording = () => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start();
-
-      const audioChunks = [];
-      mediaRecorder.addEventListener('dataavailable', (event) => {
-        audioChunks.push(event.data);
+    mediaRecorder.addEventListener('stop', () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      setAudioBlob(audioBlob);
+      // Initialize waveform
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const waveSurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: 'violet',
+        progressColor: 'purple',
       });
-
-      mediaRecorder.addEventListener('stop', () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        setAudioBlob(audioBlob);
-      });
-
-      setRecording(true);
+      waveSurfer.load(audioUrl);
+      setWaveform(waveSurfer);
     });
+    setRecording(true);
+    setRecordingTime(0);
+    timerRef.current = setInterval(() => {
+      setRecordingTime(prev => prev + 1); // Increment recording time
+    }, 1000);
   };
-
   const stopRecording = () => {
     mediaRecorderRef.current.stop();
     setRecording(false);
+    clearInterval(timerRef.current);
   };
-  const handleDocumentClick = (event) => {
-    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
-      setShowEmojiPicker(false);
+  const handlePlayPause = () => {
+    if (waveform) {
+      if (isPlaying) {
+        waveform.pause();
+      } else {
+        waveform.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+  const handleDelete = () => {
+    setAudioBlob(null);
+    if (waveform) {
+      waveform.empty();
     }
   };
 
-  useEffect((e) => {
-    document.addEventListener('click', handleDocumentClick, true);
-    return () => {
-      document.removeEventListener('click', handleDocumentClick, false);
-    };
-  }, []);
+
+
 
   return (
     <>
@@ -371,10 +397,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
               ) : (
                 <>
                   {selectedChat.chatName.toUpperCase()}
-
-
-
-
                 </>
               ))}
             <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messages={messages} />
@@ -415,29 +437,43 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
 
             <Box display="flex" alignItems="center" p={2} borderTop="1px solid #ccc" bg="gray.200" onKeyDown={sendMessage}
             >
-              <HStack spacing={2}>
-                <IconButton
-                  icon={<FontAwesomeIcon icon={faSmile} />}
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  aria-label="Emoji Picker"
-                  bg="gray.500"
-                  color="white"
-                  _hover={{bg:"gray.600"}}
-                />
-                {showEmojiPicker && <div ref={emojiPickerRef} className="emoji-picker-wrapper">
-                  <Picker onEmojiClick={handleEmojiClick} />
-                </div>}
 
-                <IconButton
-                  icon={<FontAwesomeIcon icon={faPaperclip} />}
-                  as="label"
-                  aria-label="File Picker"
-                  bg="gray.500"
-                  color="white"
-                  _hover={{bg:"gray.600"}}
-                >
-                  <input type="file" onChange={handleFileChange} style={{ display: 'none' }} />
-                </IconButton>
+              <HStack spacing={2}>
+
+                {!recording && !audioBlob ?
+                  <>
+                    <EmojiPicker setNewMessage={setNewMessage} newMessage={newMessage} />
+                    <FilePicker setNewMessage={setNewMessage} newMessage={newMessage} setFile={setFile} file={file} />
+                  </>
+                  : null}
+                {recording ? (
+                  <Box>
+                    <Text color="red.500" fontWeight="bold" style={{ animation: 'blinking 1s infinite' }}>
+                      Recording
+                    </Text>
+                    <Text color="black">{recordingTime}s</Text>
+                  </Box>
+                ) : null}
+                <Box id="waveform" style={{ width: '100%', height: '80px', marginLeft: '10px' }}></Box>
+                {audioBlob && !recording ? (
+                  <IconButton
+                    icon={<FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />}
+                    onClick={handlePlayPause}
+                    aria-label="Play/Pause"
+                    bg="blue.500"
+                    color="white"
+                    marginLeft="10px"
+                  />
+                ) : null}
+
+                {audioBlob ? <IconButton
+                  icon={<FontAwesomeIcon icon={faTrash} />}
+                  onClick={handleDelete}
+                  aria-label="Delete"
+                  colorScheme="red"
+                  marginLeft="10px"
+                /> : <></>}
+
               </HStack>
               <Input
                 type="text"
@@ -453,7 +489,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
                 ml={2}
                 mr={2}
               />
-              {newMessage ? (
+
+              {newMessage || audioBlob ? (
                 <IconButton
                   icon={<FontAwesomeIcon icon={faPaperPlane} />}
                   onClick={handleSend}
@@ -462,15 +499,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
                   color="white"
                 />
               ) : (
+
                 <IconButton
                   icon={<FontAwesomeIcon icon={recording ? faPause : faMicrophone} />}
                   onClick={recording ? stopRecording : startRecording}
-                  aria-label="Record Audio"
-                  bg="red.500"
+                  aria-label={recording ? "Stop Recording" : "Start Recording"}
+                  bg={recording ? "red.500" : "green.500"}
                   color="white"
-                  _hover={{bg:"red.600"}}
+                  _hover={{ bg: "red.600" }}
                 />
+
               )}
+
+
             </Box>
 
 
@@ -493,6 +534,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
     </>
 
   );
-};
+}
 
 export default SingleChat;

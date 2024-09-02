@@ -14,14 +14,11 @@ const cors = require('cors');
 
 
 
+
 dotenv.config();
 connectDB();
 const app = express();
 
-// app.use(cors({
-//   origin: 'http://127.0.0.1:3000',
-//   methods: ['GET', 'POST', 'DELETE', 'PUT'],
-// }));
 
 
 app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));

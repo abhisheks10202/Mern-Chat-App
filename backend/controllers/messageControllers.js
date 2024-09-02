@@ -24,6 +24,8 @@ const allMessages = asyncHandler(async (req, res) => {
 //@access          Protected
 const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId,receiverUserIds} = req.body;
+  const audioFile = req.file; // Assuming you're using middleware like 'multer' to handle file uploads
+  console.log(audioFile+"audio file")
 console.log(chatId+" send message"+ chatId._id+" chatID._id"+receiverUserIds[0]._id)
 
   if (!content || !chatId||!receiverUserIds) {
@@ -32,15 +34,18 @@ console.log(chatId+" send message"+ chatId._id+" chatID._id"+receiverUserIds[0].
   }
  
   
-  var newMessage = {
+  let newMessage = {
     sender: req.user._id,
-    content: content,
+    content: content || '', // Allow content to be empty if only audio is sent
     chat: chatId,
     receiver: receiverUserIds,
   };
    //for reverse isBlock status check (is receiver blocked me or not)
    
-  
+  // Handle audio file upload
+  if (audioFile) {
+    newMessage.audioUrl = audioFile.path; // or the URL based on your storage solution
+  }
 
   try {
     var message = await Message.create(newMessage);
