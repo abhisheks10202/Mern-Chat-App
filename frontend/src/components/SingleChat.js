@@ -3,9 +3,9 @@ import { Input } from "@chakra-ui/input";
 import { Box, Text } from "@chakra-ui/layout";
 import { FaImage, FaVideo } from "react-icons/fa";
 import "./styles.css";
-import { IconButton, Spinner, useToast, InputGroup, InputLeftElement, Icon } from "@chakra-ui/react";
+import { IconButton, Spinner, useToast, InputGroup, InputLeftElement, Icon, HStack } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
-import { useEffect, useState,useContext} from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { ArrowBackIcon, HamburgerIcon } from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
@@ -19,12 +19,21 @@ import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import ChatSetting from "./miscellaneous/ChatSetting";
 import { BlockContext } from "../Context/BlockContext";
+import Picker from 'emoji-picker-react';
+import React, { useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMicrophone, faPaperclip, faSmile, faPaperPlane, faPause } from '@fortawesome/free-solid-svg-icons';
+
+
 // const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 const ENDPOINT = "https://mern-chat-app-1eb8.onrender.com/";
 
+
+// const socket = io('http://localhost:5000');
+
 var socket, selectedChatCompare;
 
-const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesForMyChats }) => {
+const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessagesForMyChats }) => {
   const { isBlocked } = useContext(BlockContext);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,10 +42,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
- 
+
   const [loggedUser, setLoggedUser] = useState();
 
- 
+
+  const [message, setMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [file, setFile] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const inputRef = useRef(null);
+  const emojiPickerRef = useRef(null);
+
+
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -109,25 +128,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
             },
           };
           const res = await axios.post('http://localhost:3000/api/chatbot/send-payload', { loggedUser, chatId, message }, config);
-          const messages=res.data
-          console.log(res.data.message,"   res.data.message");
-          console.log(res.data.responseMessage,"   res.data.message");
-          console.log(res,"only response")
-          
-         messages=res.data.message
-        const obj1={
-          messages:res.data.message
-        }
-        const obj2={
-          messages:res.data.responseMessage
-        }
-          setMessages([...messages,obj1]);
-          messages=res.data.responseMessages;
+          const messages = res.data
+          console.log(res.data.message, "   res.data.message");
+          console.log(res.data.responseMessage, "   res.data.message");
+          console.log(res, "only response")
+
+          messages = res.data.message
+          const obj1 = {
+            messages: res.data.message
+          }
+          const obj2 = {
+            messages: res.data.responseMessage
+          }
+          setMessages([...messages, obj1]);
+          messages = res.data.responseMessages;
           setMessages([...messages, obj2]);
-          console.log(messages,"areyyyy isidbhb=================================================")
+          console.log(messages, "areyyyy isidbhb=================================================")
           setFetchAgain(!fetchAgain);
           setNewMessage("");
-  
+
 
         } catch (error) {
           console.error('Error:', error);
@@ -157,13 +176,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
               content: newMessage,
               chatId: selectedChat,
               // selectedChat:selectedChat,
-              receiverUserIds:receiverUserIds
+              receiverUserIds: receiverUserIds
             },
             config
           );
           socket.emit("new message", data);
           setMessages([...messages, data]);
-          console.log(data,"else");
+          console.log(data, "else");
           setFetchAgain(!fetchAgain);
 
           console.log(fetchAgain, "from useEffect singleChat sendMessage");
@@ -245,6 +264,84 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
     }, timerLength);
   };
 
+
+
+
+  const handleSend = async () => {
+    const formData = new FormData();
+    formData.append('text', newMessage);
+    if (audioBlob) {
+      formData.append('file', audioBlob, 'audio.webm');
+    }
+    if (file) {
+      formData.append('file', file);
+    }
+
+    const response = await fetch('http://localhost:5000/messages', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    setNewMessage('');
+    setAudioBlob(null);
+    setFile(null);
+  };
+
+  const handleEmojiClick = (emojiObject, event) => {
+    // if (inputRef.current) {
+    //   const cursorPosition = inputRef.current.selectionStart;
+    //   const textBeforeCursor = newMessage.substring(0, cursorPosition);
+    //   const textAfterCursor = newMessage.substring(cursorPosition);
+    //   const newText = textBeforeCursor + emojiObject.emoji + textAfterCursor;
+    //   setNewMessage(newText);
+    // } else {
+    //   console.error("inputRef.current is null");
+    // }
+    setNewMessage((prevInput) => prevInput + emojiObject.emoji);
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+
+      const audioChunks = [];
+      mediaRecorder.addEventListener('dataavailable', (event) => {
+        audioChunks.push(event.data);
+      });
+
+      mediaRecorder.addEventListener('stop', () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+      });
+
+      setRecording(true);
+    });
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current.stop();
+    setRecording(false);
+  };
+  const handleDocumentClick = (event) => {
+    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+      setShowEmojiPicker(false);
+    }
+  };
+
+  useEffect((e) => {
+    document.addEventListener('click', handleDocumentClick, true);
+    return () => {
+      document.removeEventListener('click', handleDocumentClick, false);
+    };
+  }, []);
+
   return (
     <>
       {selectedChat ? (
@@ -270,21 +367,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
                 <>
 
                   {getSender(user, selectedChat.users)}
-
-              
-                 
-
                 </>
               ) : (
                 <>
                   {selectedChat.chatName.toUpperCase()}
-                 
-                 
+
+
 
 
                 </>
               ))}
-              <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messages={messages}/>
+            <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messages={messages} />
           </Text>
           {/* </Flex> */}
 
@@ -320,46 +413,67 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
 
             )}
 
-            <FormControl
-              onKeyDown={sendMessage}
-              id="first-name"
-              isRequired
-              mt={3}
+            <Box display="flex" alignItems="center" p={2} borderTop="1px solid #ccc" bg="gray.200" onKeyDown={sendMessage}
             >
-              {istyping ? (
-                <div>
-                  <Lottie
-                    options={defaultOptions}
-                    // height={50}
-                    width={70}
-                    style={{ marginBottom: 15, marginLeft: 0 }}
-                  />
-                </div>
-              ) : (
-                <></>
-              )}
-              {/* <Input
-                variant="filled"
-                bg="#E0E0E0"
-                placeholder="Enter a message.."
+              <HStack spacing={2}>
+                <IconButton
+                  icon={<FontAwesomeIcon icon={faSmile} />}
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  aria-label="Emoji Picker"
+                  bg="gray.500"
+                  color="white"
+                  _hover={{bg:"gray.600"}}
+                />
+                {showEmojiPicker && <div ref={emojiPickerRef} className="emoji-picker-wrapper">
+                  <Picker onEmojiClick={handleEmojiClick} />
+                </div>}
+
+                <IconButton
+                  icon={<FontAwesomeIcon icon={faPaperclip} />}
+                  as="label"
+                  aria-label="File Picker"
+                  bg="gray.500"
+                  color="white"
+                  _hover={{bg:"gray.600"}}
+                >
+                  <input type="file" onChange={handleFileChange} style={{ display: 'none' }} />
+                </IconButton>
+              </HStack>
+              <Input
+                type="text"
                 value={newMessage}
-                onChange={typingHandler}
-              /> */}
-              <InputGroup>
-  <InputLeftElement>
-    <Icon as={FaImage} color="gray.400"  />
-    <Icon as={FaVideo} color="gray.400" />
-  </InputLeftElement>
-  <Input
-                variant="filled"
-                bg="#E0E0E0"
+                ref={inputRef}
+                onChange={(e) => setNewMessage(e.target.value)}
                 placeholder={isBlocked ? "You blocked this user" : "Enter a message.."}
-                value={newMessage}
-                onChange={typingHandler}
                 isDisabled={isBlocked}
-            />
-</InputGroup>
-            </FormControl>
+
+                flex="1"
+                bg="gray.300"
+                color="gray"
+                ml={2}
+                mr={2}
+              />
+              {newMessage ? (
+                <IconButton
+                  icon={<FontAwesomeIcon icon={faPaperPlane} />}
+                  onClick={handleSend}
+                  aria-label="Send Message"
+                  bg="blue.500"
+                  color="white"
+                />
+              ) : (
+                <IconButton
+                  icon={<FontAwesomeIcon icon={recording ? faPause : faMicrophone} />}
+                  onClick={recording ? stopRecording : startRecording}
+                  aria-label="Record Audio"
+                  bg="red.500"
+                  color="white"
+                  _hover={{bg:"red.600"}}
+                />
+              )}
+            </Box>
+
+
           </Box>
         </>
       ) : (
@@ -371,11 +485,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain,messagesForMyChats,setMessagesFo
           h="100%"
         >
           <Text fontSize="3xl" pb={3} fontFamily="Work sans">
-           Click on a user to start chatting
+            Click on a user to start chatting
           </Text>
         </Box>
       )}
-       
+
     </>
 
   );
