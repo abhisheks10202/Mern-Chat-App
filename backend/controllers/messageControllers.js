@@ -24,11 +24,17 @@ const allMessages = asyncHandler(async (req, res) => {
 //@access          Protected
 const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId,receiverUserIds} = req.body;
+  // let chatIdObject = JSON.parse(chatId);
   const audioFile = req.file; // Assuming you're using middleware like 'multer' to handle file uploads
-  console.log(audioFile+"audio file")
-console.log(chatId+" send message"+ chatId._id+" chatID._id"+receiverUserIds[0]._id)
+console.log(audioFile+"audio file")
+// console.log(JSON.stringify(req.body, null, 2), "req.body");
+console.log(chatId+" send message"+ chatId+" chatID._id"+receiverUserIds[0]._id+" " +content+" content")
 
-  if (!content || !chatId||!receiverUserIds) {
+if (!content && !audioFile) {
+  console.log("Neither content nor audio file provided.");
+  return res.sendStatus(400);
+}
+  if ( !chatId||!receiverUserIds) {
     console.log("Invalid data passed into request");
     return res.sendStatus(400);
   }

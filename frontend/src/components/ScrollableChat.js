@@ -2,6 +2,7 @@ import { Avatar } from "@chakra-ui/avatar";
 import { Tooltip } from "@chakra-ui/tooltip";
 import DeleteMessageModal from "./miscellaneous/DeleteMessageModal";
 import ScrollableFeed from "react-scrollable-feed";
+import AudioMessage from '../components/miscellaneous/AudioMessage'
 // import { Button } from "@chakra-ui/button";
 import moment from "moment";
 import axios from "axios";
@@ -48,7 +49,7 @@ import io from "socket.io-client";
 
 
 
-const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
+const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) => {
   var socket, selectedChatCompare;
   const { user } = ChatState();
   const [showModal, setShowModal] = useState(false);
@@ -69,7 +70,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
     setMessageId(null);
     setShowModal(false);
   };
- 
+
   const handleDeleteForMe = async () => {
     try {
       const config = {
@@ -82,7 +83,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
         `/api/message/${messageId}/delete-for-me`,
         config
       );
-      
+
       const updatedMessages = messages.filter((message) => message._id !== messageId);
       // setFetchAgain(!fetchAgain);
       setMessages(updatedMessages);
@@ -90,7 +91,7 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
 
       // socket.emit("deleted message", response);
       // Handle the response data as needed
-      console.log(response.data,"after deleted emit");
+      console.log(response.data, "after deleted emit");
       closeModal();
       // Show success toast message
       toast({
@@ -100,9 +101,9 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
         isClosable: true,
         position: "bottom",
       });
-   
+
     } catch (error) {
-      console.log(error.response,"in catch errrorrror")
+      console.log(error.response, "in catch errrorrror")
       const errorMessage = error.response.data.error;
       console.error(error);
       // Handle any errors that occur during the request
@@ -134,9 +135,9 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
         `/api/message/${messageId}/delete-for-everyone`,
         config
       );
-    
 
-     
+
+
       const updatedMessages = messages.map((message) =>
         message._id === messageId
           ? { ...message, content: "Deleted for everyone", MessageDeletedForEveryone: true }
@@ -169,9 +170,9 @@ const ScrollableChat = ({ messages,fetchAgain, setFetchAgain,setMessages}) => {
   };
 
   useEffect(() => {
-console.log(messages,"messages")
+    console.log(messages, "messages")
   }, [fetchAgain]);
- 
+
 
   const shouldShowDateSeparator = (currentMessage, previousMessage) => {
     if (!previousMessage) return true;
@@ -183,10 +184,11 @@ console.log(messages,"messages")
     "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg";
 
   return (
+
     <ScrollableFeed>
       {messages &&
         messages.map((m, i) => (
-          <div style={{ display: "flex" }} key={m._id}>
+          <div style={{ display: "flex" }} key={m._id} >
             {(isSameSender(messages, m, i, user._id) ||
               isLastMessage(messages, i, user._id)) &&
               deletedFor(messages, m, i, user._id) && (
@@ -215,20 +217,35 @@ console.log(messages,"messages")
                   fontStyle: m.MessageDeletedForEveryone ? "italic" : "normal",
                   background: m.MessageDeletedForEveryone ? "black" : `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
                     }`,
+                  position: "relative",
                 }}
-              >{m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
-                {m.content}
-                {/* {m.sender.name} */}
-                {/* {console.log(m)} */}
-                {m.MessageDeletedForEveryone === false ? <Tooltip label="Delete Message" fontSize="md">
-                  <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />
-                </Tooltip> : <></>}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  {m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
 
-                <Text fontSize="xs" color="gray.500">
-                  {moment(m.createdAt).format("hh:mm A")}
-                </Text>
+                  {m.audioUrl ? (
+                    <AudioMessage audioUrl={m.audioUrl} />
+                  ) : (
+                    <Text fontSize="md" style={{ flex: 1 }}>
+                      {m.content}
+                    </Text>
+                  )}
+                  {/* Tooltip for deleting message */}
+                  {m.MessageDeletedForEveryone === false && (
+                    <Tooltip label="Delete Message" fontSize="md">
+                      <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />
+                    </Tooltip>
+                  )}
+                </div>
+                <Text fontSize="xs" color="gray.500" style={{ marginTop: "5px" }}>
+    {moment(m.createdAt).format("hh:mm A")}
+  </Text>
+
               </span>
+
             )}
+
+
           </div>
         ))}
 
@@ -257,6 +274,7 @@ console.log(messages,"messages")
         </ModalContent>
       </Modal>
     </ScrollableFeed>
+
 
   );
 };

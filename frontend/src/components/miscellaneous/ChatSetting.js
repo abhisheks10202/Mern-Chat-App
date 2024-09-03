@@ -149,71 +149,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
         // Perform any additional actions or logic here after the showProfileModal state changes
     }, [showProfileModal]);
 
-    // useEffect(() => {
-    //     handleCheckBlockStatus()
-    // }, [selectedChat]);
-
-    // const fetchBlocked = async () => {
-    //     if (!selectedChat) return;
-    //     setIsBlocked(false)
-    //     console.log(messages)
-
-    //     try {
-    //         const config = {
-    //             headers: {
-    //                 Authorization: `Bearer ${user.token}`,
-    //             },
-    //         };
-
-    //         //   setLoading(true);
-    //         console.log(user._id)
-    //         const { data } = await axios.get(
-    //             `/api/block/${user._id}`,
-    //             config
-    //         );
-    //         console.log(data, "gedgg");
-
-    //         // messages.forEach((message) => {
-    //         //     setTimeout(() => {
-    //         //         if (message.chat && message.chat.users) {
-    //         //             message.chat.users.forEach((userId, index) => {
-    //         //                 if (userId.toString() !== user._id.toString()) {
-    //         //                     blockedUserIds.add(userId);
-    //         //                     // console.log(userId,"hehehehehehehheh")
-    //         //                 }
-    //         //             });
-
-    //         //         }
-    //         //     }, 1000);
-    //         // });
-    //         // console.log(messages)
-
-
-    //         // data.forEach(item => {
-    //         //     setTimeout(() => {
-    //         //       console.log([...blockedUserIds][0].toString(), item.blocked._id.toString() + " " + item.blocker.toString() + "  ", user._id.toString(), "khatma tatat ")
-    //         //       if ([...blockedUserIds][0].toString() === item.blocked._id.toString() && item.blocker.toString() === user._id.toString()) {
-    //         //         setIsBlocked(true)
-    //         //       }
-    //         //     }, ); // Set the desired timeout value (in milliseconds)
-    //         //   });
-
-
-
-
-
-
-    //     } catch (error) {
-    //         toast({
-    //             title: "Error Occured!",
-    //             description: "Failed to Load the Blocked",
-    //             status: "error",
-    //             duration: 5000,
-    //             isClosable: true,
-    //             position: "bottom",
-    //         });
-    //     }
-    // };
+   
 
 
     const handleUnblockUser = async (req, res) => {

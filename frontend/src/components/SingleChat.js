@@ -64,6 +64,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
   const inputRef = useRef();
   const timerRef = useRef(null);
 
+  let receiverUserIds = [];
+
 
   const defaultOptions = {
     loop: true,
@@ -167,7 +169,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
         // Call your other API here
         // console.log("Running other API", user.name);
         socket.emit("stop typing", selectedChat._id);
-        const receiverUserIds = users.filter(user => user._id !== loggedUser._id);
+        receiverUserIds = users.filter(user => user._id !== loggedUser._id);
         // console.log(receiverUserIds, loggedUser._id);
         try {
           const config = {
@@ -276,20 +278,42 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
 
 
 
-  const handleSend = async () => {
-  console.log("audio file")
+  const handleSend = async (event) => {
+    console.log("audio file")
 
     const formData = new FormData();
-    
+    const users = selectedChat.users;
+    receiverUserIds = users.filter(user => user._id !== loggedUser._id);
+
     // If the user enters a text message
     if (newMessage) {
-        formData.append('content', newMessage); // Append text message
+      formData.append('content', newMessage); // Append text message
     }
-    
+    setNewMessage("");
     // If the user recorded audio
     if (audioBlob) {
-        formData.append('audio', audioBlob, 'audio.webm'); // File upload
+      formData.append('audio', audioBlob, 'audio.webm'); // File upload
     }
+    setAudioBlob(null);
+    if (waveform) {
+      waveform.empty();
+    }
+   
+    formData.append('chatId', selectedChat._id);  // Assuming chatId is defined in your scope
+
+    if (Array.isArray(receiverUserIds) && receiverUserIds.length > 0) {
+      console.log('receiverUserIds:', receiverUserIds);
+      receiverUserIds.forEach(user => {
+        if (user._id) {
+          formData.append('receiverUserIds[]', user._id); // Append each user's _id
+        } else {
+          console.error('User object does not have an _id:', user);
+        }
+      });
+    } else {
+      console.error('receiverUserIds is not a valid array');
+    }
+   
     const config = {
       headers: {
         Authorization: `Bearer ${user.token}`,
@@ -300,18 +324,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
         method: 'POST',
         body: formData,
         ...config, // Spread operator to include headers
-    });
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            console.error('Error sending message:', errorResponse);
-            return;
-        }
-        const data = await response.json(); // The saved message with both text and audio URL
-        console.log('Message sent successfully:', data);
-        
-        // Further handle state resets...
+      });
+
+
+
+      console.log(fetchAgain, "from useEffect singleChat sendMessage");
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error('Error sending message:', errorResponse);
+        return;
+      }
+      const data = await response.json();
+      console.log('Message sent successfully:', data);
+      socket.emit("new message", data);
+      setMessages([...messages, data]);
+      console.log(data, "else");
+      setFetchAgain(!fetchAgain);
+
+      // Further handle state resets...
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -494,6 +526,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
                 <IconButton
                   icon={<FontAwesomeIcon icon={faPaperPlane} />}
                   onClick={handleSend}
+                  onKeyDown={handleSend}
                   aria-label="Send Message"
                   bg="blue.500"
                   color="white"
