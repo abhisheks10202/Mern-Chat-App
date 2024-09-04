@@ -1,6 +1,7 @@
 import { FormControl } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Box, Text } from "@chakra-ui/layout";
+import { Image } from "@chakra-ui/react";
 import { FaImage, FaPauseCircle, FaVideo } from "react-icons/fa";
 import "./styles.css";
 import { IconButton, Spinner, useToast, InputGroup, InputLeftElement, Icon, HStack } from "@chakra-ui/react";
@@ -28,6 +29,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faMicrophone, faPaperclip, faSmile, faPaperPlane, faPause } from '@fortawesome/free-solid-svg-icons';
 import EmojiPicker from "./miscellaneous/EmojiPicker";
 import FilePicker from "./miscellaneous/FilePicker";
+import ImageMessage from "./miscellaneous/ImageMessage";
 
 
 // const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
@@ -291,13 +293,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
     }
     setNewMessage("");
     // If the user recorded audio
-    if (audioBlob) {
-      formData.append('audio', audioBlob, 'audio.webm'); // File upload
+    if (file) {
+      formData.append('file', file); // Add the file to formData
+      setFile(null); // Reset file after sending
     }
-    setAudioBlob(null);
+    if (audioBlob) {
+      formData.append('audio', audioBlob, 'audio.webm');  // File upload
+      console.log(audioBlob)
+     
+    }
+    
     if (waveform) {
       waveform.empty();
     }
+    setAudioBlob(null);
    
     formData.append('chatId', selectedChat._id);  // Assuming chatId is defined in your scope
 
@@ -334,8 +343,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
         console.error('Error sending message:', errorResponse);
         return;
       }
+    
       const data = await response.json();
       console.log('Message sent successfully:', data);
+      console.log(data);
+      setFile(null); 
       socket.emit("new message", data);
       setMessages([...messages, data]);
       console.log(data, "else");
@@ -434,7 +446,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
             <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messages={messages} />
           </Text>
           {/* </Flex> */}
-
+         
 
           <Box
             display="flex"
@@ -465,6 +477,33 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
 
               </div>
 
+            )}
+              {file && (
+              <Box 
+                borderWidth="1px" 
+                borderRadius="lg" 
+                p={2} 
+                mt={2} 
+                display="flex" 
+                alignItems="center"
+              >
+                <Image 
+                  src={URL.createObjectURL(file)} // Show image preview
+                  alt="Selected File"
+                  boxSize="40px" 
+                  objectFit="cover" 
+                  borderRadius="md" 
+                  mr={3} 
+                />
+                <Text flex="1">{file.name}</Text>
+                <IconButton 
+                  icon={<FontAwesomeIcon icon={faTrash} />} 
+                  onClick={() => setFile(null)} 
+                  aria-label="Remove File" 
+                  size="sm" 
+                  colorScheme="red" 
+                />
+              </Box>
             )}
 
             <Box display="flex" alignItems="center" p={2} borderTop="1px solid #ccc" bg="gray.200" onKeyDown={sendMessage}
@@ -522,7 +561,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
                 mr={2}
               />
 
-              {newMessage || audioBlob ? (
+              {newMessage || audioBlob||file ? (
                 <IconButton
                   icon={<FontAwesomeIcon icon={faPaperPlane} />}
                   onClick={handleSend}

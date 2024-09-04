@@ -1,61 +1,36 @@
-import { ViewIcon } from "@chakra-ui/icons";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  useDisclosure,
-  IconButton,
-  Text,
-  Image,
-} from "@chakra-ui/react";
-import React, { useRef } from 'react';
-import Picker from 'emoji-picker-react';
-import { useEffect, useState, useContext } from "react";
+import { IconButton } from "@chakra-ui/react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMicrophone, faPaperclip, faSmile, faPaperPlane, faPause } from '@fortawesome/free-solid-svg-icons';
-
-const FilePicker = ({ setNewMessage, newMessage,file,setFile}) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  
-
+import { faPaperclip } from '@fortawesome/free-solid-svg-icons';
+const FilePicker = ({ setFile }) => {
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      // Set the selected file to the parent component's state
+      setFile(files[0]);
+      console.log("Selected file:", files[0]); // Debugging: Log the selected file
+    }
   };
-
-//   const handleDocumentClick = (event) => {
-//     // if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
-//     //   setShowEmojiPicker(false);
-//     }
-//   };
-
-//   useEffect((e) => {
-//     document.addEventListener('click', handleDocumentClick, true);
-//     return () => {
-//       document.removeEventListener('click', handleDocumentClick, false);
-//     };
-//   }, []);
-
-
   return (
-    <>
+    // This div wraps everything and ensures the input is functional
+    <div>
+      <input 
+        type="file" 
+        id="file-input" // Give it an ID for easy access (optional)
+        onChange={handleFileChange} 
+        style={{ display: 'none' }} // Hide the file input
+        accept="image/*,video/*" // Accepts images and videos
+      />
       <IconButton
-                  icon={<FontAwesomeIcon icon={faPaperclip} />}
-                  as="label"
-                  aria-label="File Picker"
-                  bg="gray.500"
-                  color="white"
-                  _hover={{bg:"gray.600"}}
-                >
-                  <input type="file" onChange={handleFileChange} style={{ display: 'none' }} />
-                </IconButton>
-    </>
-  )
-  ;
+        icon={<FontAwesomeIcon icon={faPaperclip} />}
+        as="label" // Use label functionality
+        htmlFor="file-input" // Link the button to the input via id
+        aria-label="File Picker"
+        style={{ cursor: 'pointer' }} // Visual feedback
+        bg="gray.500"
+        color="white"
+        _hover={{ bg: "gray.600" }}
+      />
+    </div>
+  );
 };
-
 export default FilePicker;

@@ -3,6 +3,7 @@ import { Tooltip } from "@chakra-ui/tooltip";
 import DeleteMessageModal from "./miscellaneous/DeleteMessageModal";
 import ScrollableFeed from "react-scrollable-feed";
 import AudioMessage from '../components/miscellaneous/AudioMessage'
+import ImageMessage from "./miscellaneous/ImageMessage";
 // import { Button } from "@chakra-ui/button";
 import moment from "moment";
 import axios from "axios";
@@ -170,7 +171,7 @@ const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) =>
   };
 
   useEffect(() => {
-    console.log(messages, "messages")
+    // console.log(messages, "messages")
   }, [fetchAgain]);
 
 
@@ -221,16 +222,18 @@ const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) =>
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  {m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
-
-                  {m.audioUrl ? (
-                    <AudioMessage audioUrl={m.audioUrl} />
-                  ) : (
-                    <Text fontSize="md" style={{ flex: 1 }}>
-                      {m.content}
-                    </Text>
-                  )}
-                  {/* Tooltip for deleting message */}
+               {m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
+        {/* {console.log(m)} */}
+                  {!m.MessageDeletedForEveryone && m.audioUrl ? (
+            <AudioMessage audioUrl={m.audioUrl} />
+          ) : !m.MessageDeletedForEveryone && m.imageUrls && m.imageUrls.length > 0 ? (
+            <ImageMessage imageUrl={m.imageUrls[0]} />
+          ) : (
+            <Text fontSize="md" style={{ flex: 1 }}>
+              {m.content}
+            </Text>
+          )}
+                
                   {m.MessageDeletedForEveryone === false && (
                     <Tooltip label="Delete Message" fontSize="md">
                       <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />
@@ -238,8 +241,8 @@ const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) =>
                   )}
                 </div>
                 <Text fontSize="xs" color="gray.500" style={{ marginTop: "5px" }}>
-    {moment(m.createdAt).format("hh:mm A")}
-  </Text>
+                  {moment(m.createdAt).format("hh:mm A")}
+                </Text>
 
               </span>
 
