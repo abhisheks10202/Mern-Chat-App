@@ -300,14 +300,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
     if (audioBlob) {
       formData.append('audio', audioBlob, 'audio.webm');  // File upload
       console.log(audioBlob)
-     
+
     }
-    
+
     if (waveform) {
       waveform.empty();
     }
     setAudioBlob(null);
-   
+
     formData.append('chatId', selectedChat._id);  // Assuming chatId is defined in your scope
 
     if (Array.isArray(receiverUserIds) && receiverUserIds.length > 0) {
@@ -322,7 +322,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
     } else {
       console.error('receiverUserIds is not a valid array');
     }
-   
+
     const config = {
       headers: {
         Authorization: `Bearer ${user.token}`,
@@ -343,11 +343,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
         console.error('Error sending message:', errorResponse);
         return;
       }
-    
+
       const data = await response.json();
       console.log('Message sent successfully:', data);
       console.log(data);
-      setFile(null); 
+      setFile(null);
       socket.emit("new message", data);
       setMessages([...messages, data]);
       console.log(data, "else");
@@ -446,7 +446,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
             <ChatSetting selectedChat={selectedChat} fetchMessages={fetchMessages} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} messages={messages} />
           </Text>
           {/* </Flex> */}
-         
+
 
           <Box
             display="flex"
@@ -478,35 +478,40 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
               </div>
 
             )}
-              {file && (
-              <Box 
-                borderWidth="1px" 
-                borderRadius="lg" 
-                p={2} 
-                mt={2} 
-                display="flex" 
+            {file && (
+              <Box
+                borderWidth="1px"
+                borderRadius="lg"
+                p={2}
+                mt={2}
+                display="flex"
                 alignItems="center"
               >
-                <Image 
+                <Image
                   src={URL.createObjectURL(file)} // Show image preview
                   alt="Selected File"
-                  boxSize="40px" 
-                  objectFit="cover" 
-                  borderRadius="md" 
-                  mr={3} 
+                  boxSize="40px"
+                  objectFit="cover"
+                  borderRadius="md"
+                  mr={3}
                 />
                 <Text flex="1">{file.name}</Text>
-                <IconButton 
-                  icon={<FontAwesomeIcon icon={faTrash} />} 
-                  onClick={() => setFile(null)} 
-                  aria-label="Remove File" 
-                  size="sm" 
-                  colorScheme="red" 
+                <IconButton
+                  icon={<FontAwesomeIcon icon={faTrash} />}
+                  onClick={() => setFile(null)}
+                  aria-label="Remove File"
+                  size="sm"
+                  colorScheme="red"
                 />
               </Box>
             )}
 
-            <Box display="flex" alignItems="center" p={2} borderTop="1px solid #ccc" bg="gray.200" onKeyDown={sendMessage}
+            <Box display="flex" alignItems="center" p={2} borderTop="1px solid #ccc" bg="gray.200" onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission if inside a form
+                handleSend(event); // Call the handleSend function
+              }
+            }}
             >
 
               <HStack spacing={2}>
@@ -561,7 +566,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, messagesForMyChats, setMessages
                 mr={2}
               />
 
-              {newMessage || audioBlob||file ? (
+              {newMessage || audioBlob || file ? (
                 <IconButton
                   icon={<FontAwesomeIcon icon={faPaperPlane} />}
                   onClick={handleSend}

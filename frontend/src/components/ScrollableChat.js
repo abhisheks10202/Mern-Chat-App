@@ -4,6 +4,7 @@ import DeleteMessageModal from "./miscellaneous/DeleteMessageModal";
 import ScrollableFeed from "react-scrollable-feed";
 import AudioMessage from '../components/miscellaneous/AudioMessage'
 import ImageMessage from "./miscellaneous/ImageMessage";
+import VideoMessage from "./miscellaneous/VideoMessage";
 // import { Button } from "@chakra-ui/button";
 import moment from "moment";
 import axios from "axios";
@@ -224,7 +225,7 @@ const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) =>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                {m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
         {/* {console.log(m)} */}
-                  {!m.MessageDeletedForEveryone && m.audioUrl ? (
+                  {/* {!m.MessageDeletedForEveryone && m.audioUrl ? (
             <AudioMessage audioUrl={m.audioUrl} />
           ) : !m.MessageDeletedForEveryone && m.imageUrls && m.imageUrls.length > 0 ? (
             <ImageMessage imageUrl={m.imageUrls[0]} />
@@ -233,6 +234,26 @@ const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) =>
               {m.content}
             </Text>
           )}
+          {m.videoUrls && m.videoUrls.length > 0 && 
+            m.videoUrls.map((videoUrl, index) => (
+              <VideoMessage key={index} videoUrl={videoUrl} />
+            ))
+          } */}
+          {!m.MessageDeletedForEveryone ? (
+    m.audioUrl ? (
+        <AudioMessage audioUrl={m.audioUrl} />
+    ) : m.imageUrls && m.imageUrls.length > 0 ? (
+        <ImageMessage imageUrl={m.imageUrls[0]} />
+    ) : m.videoUrls && m.videoUrls.length > 0 ? (
+        m.videoUrls.map((videoUrl, index) => (
+            <VideoMessage key={index} videoUrl={videoUrl} />
+        ))
+    ) : (
+        <Text fontSize="md" style={{ flex: 1 }}>
+            {m.content}
+        </Text>
+    )
+) : null}
                 
                   {m.MessageDeletedForEveryone === false && (
                     <Tooltip label="Delete Message" fontSize="md">

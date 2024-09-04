@@ -1,62 +1,46 @@
-import { ViewIcon } from "@chakra-ui/icons";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  useDisclosure,
-  IconButton,
-  Text,
-  Image,
-} from "@chakra-ui/react";
-import React, { useRef } from 'react';
-import Picker from 'emoji-picker-react';
-import { useEffect, useState, useContext } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMicrophone, faPaperclip, faSmile, faPaperPlane, faPause } from '@fortawesome/free-solid-svg-icons';
 
+import "../styles.css"
+import { IconButton } from "@chakra-ui/react";
+import React, { useRef, useEffect, useState } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSmile } from '@fortawesome/free-solid-svg-icons';
+import Picker from 'emoji-picker-react';
 const EmojiPicker = ({ setNewMessage, newMessage }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const emojiPickerRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  const handleEmojiClick = (emojiObject, event) => {
- 
-    setNewMessage((prevInput) => prevInput + emojiObject.emoji);
+  const handleEmojiClick = (emojiObject) => {
+    setNewMessage(prevInput => prevInput + emojiObject.emoji);
   };
   const handleDocumentClick = (event) => {
     if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
       setShowEmojiPicker(false);
     }
   };
-
-  useEffect((e) => {
+  useEffect(() => {
     document.addEventListener('click', handleDocumentClick, true);
     return () => {
       document.removeEventListener('click', handleDocumentClick, false);
     };
   }, []);
-
-
   return (
-    <>
+    <div style={{ position: "relative" }}>
       <IconButton
-                  icon={<FontAwesomeIcon icon={faSmile} />}
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  aria-label="Emoji Picker"
-                  bg="gray.500"
-                  color="white"
-                  _hover={{bg:"gray.600"}}
-                />
-                {showEmojiPicker && <div ref={emojiPickerRef} className="emoji-picker-wrapper">
-                  <Picker onEmojiClick={handleEmojiClick} />
-                </div>}
-    </>
+        icon={<FontAwesomeIcon icon={faSmile} />}
+        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+        aria-label="Emoji Picker"
+        bg="gray.500"
+        color="white"
+        _hover={{ bg: "gray.600" }}
+      />
+      {showEmojiPicker && (
+        <div ref={emojiPickerRef} className="emoji-picker-wrapper">
+          <Picker
+            onEmojiClick={handleEmojiClick}
+            pickerStyle={{ width: '200px', height: '200px' }} // Set the width and height here
+          />
+        </div>
+      )}
+    </div>
   );
 };
-
 export default EmojiPicker;

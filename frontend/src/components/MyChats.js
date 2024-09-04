@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { getSender } from "../config/ChatLogics";
 import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMicrophone, faPaperclip, faSmile, faPaperPlane, faPause } from '@fortawesome/free-solid-svg-icons';
 import { Button, ButtonGroup } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 import ChatBot from "./ChatBot";
@@ -18,7 +20,7 @@ import {
 
 const today = moment().startOf('day');
 
-const MyChats = ({ fetchAgain,messagesForMyChats }) => {
+const MyChats = ({ fetchAgain, messagesForMyChats }) => {
   const [loggedUser, setLoggedUser] = useState();
 
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
@@ -34,7 +36,7 @@ const MyChats = ({ fetchAgain,messagesForMyChats }) => {
       };
 
       const { data } = await axios.get("/api/chat", config);
-      console.log(data,"filetereded",user.name);
+      console.log(data, "filetereded", user.name);
       const filteredChats = data.filter(chat => !chat.chatNotVisibleTo.includes(user._id));
       // setTimeout(() => {
       //   console.log(filteredChats);
@@ -97,7 +99,7 @@ const MyChats = ({ fetchAgain,messagesForMyChats }) => {
           >
             New Group Chat
           </Button>
-          
+
         </GroupChatModal>
       </Box>
       <ChatBot />
@@ -131,16 +133,31 @@ const MyChats = ({ fetchAgain,messagesForMyChats }) => {
                     ? getSender(loggedUser, chat.users)
                     : chat.chatName.charAt(0).toUpperCase() + chat.chatName.slice(1).toLowerCase()}
                 </Text>
-                
+
                 {chat.latestMessage && (
 
                   <Text fontSize="xs" display="flex" justifyContent="space-between">
                     <div>
                       <b>{chat.latestMessage.sender.name.charAt(0).toUpperCase() + chat.latestMessage.sender.name.slice(1)} : </b>
-                      {chat.latestMessage.MessageDeletedFor.includes(user._id)?"You deleted this message": (chat.latestMessage.content.length > 50
+                      {chat.latestMessage.MessageDeletedFor.includes(user._id) ? "You deleted this message" : (chat.latestMessage.content.length > 50
                         ? chat.latestMessage.content.substring(0, 51) + "..."
                         : chat.latestMessage.content)}
-                  
+                      {
+                        chat.latestMessage.MessageDeletedFor.includes(user._id)
+                          ? "You deleted this message"
+                          : chat.latestMessage.imageUrls && chat.latestMessage.imageUrls.length > 0
+                            ? "Image"
+                            : chat.latestMessage.videoUrls && chat.latestMessage.videoUrls.length > 0
+                              ? "video"
+                              : chat.latestMessage.audioUrl && chat.latestMessage.audioUrl.length > 0
+                                ? "Audio"
+                                : chat.latestMessage.content
+                                  ? chat.latestMessage.content.length > 50
+                                    ? chat.latestMessage.content.substring(0, 51) + "..."
+                                    : chat.latestMessage.content
+                                  : null // You can display a fallback message here
+                      }
+
 
                     </div>
                     <div style={{ whiteSpace: "nowrap" }}>
@@ -151,7 +168,7 @@ const MyChats = ({ fetchAgain,messagesForMyChats }) => {
                           : moment(chat.latestMessage.createdAt).format('DD/MM/YY')
                       }
                       {/* {console.log(chat.latestMessage.createdAt)} */}
-                      
+
                     </div>
 
                   </Text>

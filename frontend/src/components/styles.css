@@ -36,3 +36,15 @@
   50% { opacity: 0; }
   100% { opacity: 1; }
 }
+.emoji-picker-wrapper {
+  position: absolute;
+  bottom: calc(100% + 5px); /* Adjust this if necessary to create a gap */
+  left: 0; /* Align with the icon button */
+  z-index: 1000;
+
+  width: auto; /* Width can be adjusted, or use '200px' in inline styles */
+  max-width: 200px; /* Maximum width of the emoji picker */
+  border: 1px solid #eee; /* Optional aesthetic */
+  border-radius: 5px; /* Optional aesthetic */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Optional aesthetic */
+}
