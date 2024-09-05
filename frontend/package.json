@@ -27,8 +27,10 @@
     "react-scripts": "5.0.1",
     "react-scrollable-feed": "^2.0.2",
     "socket.io-client": "^4.7.5",
+    "styled-components": "^6.1.13",
     "wavesurfer.js": "^7.8.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zego-express-engine-webrtc": "^3.6.0"
   },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",

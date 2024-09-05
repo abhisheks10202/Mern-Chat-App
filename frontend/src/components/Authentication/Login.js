@@ -7,6 +7,7 @@ import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { useHistory } from "react-router-dom";
 import { ChatState } from "../../Context/ChatProvider";
+import Social from "../miscellaneous/Social";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -118,6 +119,7 @@ const Login = () => {
       >
         Get Guest User Credentials
       </Button>
+     
     </VStack>
   );
 };

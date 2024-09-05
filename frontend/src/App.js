@@ -5,6 +5,7 @@ import Chatpage from "./Pages/Chatpage";
 import Deleted from "./components/Deleted";
 import ChatBot from "./components/ChatBot";
 import { BlockProvider } from "./Context/BlockContext";
+import Social from './components/miscellaneous/Social'
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Route path="/chats" component={Chatpage} />
       <Route path="/chat" component={Deleted} />
       <Route path="/chatbot" component={ChatBot} />
+      <Route path="/social" component={Social} />
       </BlockProvider>
     </div>
   );

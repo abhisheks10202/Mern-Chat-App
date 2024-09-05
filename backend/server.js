@@ -139,4 +139,25 @@ io.on("connection", (socket) => {
     console.log("USER DISCONNECTED");
     socket.leave(userData._id);
   });
+
+//calling
+  io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+    socket.on('start-call', (data) => {
+        // Emit to the user being called
+        socket.to(data.userId).emit('incoming-call', {
+            callerId: socket.id,
+            callerName: data.callerName // You can pass more data if needed
+        });
+    });
+    socket.on('hang-up', (data) => {
+        // Notify the other user that the call has ended
+        socket.to(data.userId).emit('call-ended', {
+            callerId: socket.id
+        });
+    });
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+});
 });

@@ -31,6 +31,7 @@ import { Effect } from "react-notification-badge";
 import { getSender } from "../../config/ChatLogics";
 import UserListItem from "../userAvatar/UserListItem";
 import { ChatState } from "../../Context/ChatProvider";
+import ABoutAuthorButton from "./AboutAuthorButton";
 
 function SideDrawer() {
   const [search, setSearch] = useState("");
@@ -151,9 +152,11 @@ function SideDrawer() {
           style={{ height: '30px', width: '108px' }} // Adjusted size
         />
       </a>
+    
         <Text fontSize="2xl" fontFamily="Work sans">
           Talk-A-Tive
         </Text>
+        <ABoutAuthorButton/>
         <div>
           <Menu>
             <MenuButton p={1}>
