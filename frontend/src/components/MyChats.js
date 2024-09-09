@@ -2,7 +2,7 @@ import { AddIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { Box, Stack, Text } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import { getSender } from "../config/ChatLogics";
 import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
@@ -24,7 +24,7 @@ const MyChats = ({ fetchAgain, messagesForMyChats }) => {
   const [loggedUser, setLoggedUser] = useState();
 
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
-
+  const selectedChatRef = useRef(null); // Use a ref for selectedChat
   const toast = useToast();
 
   const fetchChats = async () => {
@@ -57,7 +57,13 @@ const MyChats = ({ fetchAgain, messagesForMyChats }) => {
       });
     }
   };
-
+  const handleChatSelect = (chat) => {
+    selectedChatRef.current = chat; // Update the ref
+    // You might want to use selectedChatRef's value elsewhere if needed
+    // If you still want to set the global state here, you can do it.
+    console.log("hellll")
+    setSelectedChat(chat);
+  };
 
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
@@ -119,10 +125,13 @@ const MyChats = ({ fetchAgain, messagesForMyChats }) => {
             {chats.map((chat) => (
 
               <Box
-                onClick={() => setSelectedChat(chat)}
+                // onClick={() => setSelectedChat(chat)}
+                onClick={() => handleChatSelect(chat)}
                 cursor="pointer"
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                color={selectedChat === chat ? "white" : "black"}
+                // bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                // color={selectedChat === chat ? "white" : "black"}
+                bg={selectedChatRef.current && selectedChatRef.current._id === chat._id ? "#38B2AC" : "#E8E8E8"} // Highlight if selected
+                color={selectedChatRef.current && selectedChatRef.current._id === chat._id ? "white" : "black"}
                 px={3}
                 py={2}
                 borderRadius="lg"

@@ -34,7 +34,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
     const [error, setError] = useState(null);
 
     const handleCheckBlockStatus = async () => {
-        // setIsBlocked(false);
+        setIsBlocked("");
         const chatId = selectedChat._id;
         setBlocker(user._id);
         const id = selectedChat.users.filter((u) => u._id != user._id)
@@ -137,7 +137,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
         // ... your code ...
     };
     useEffect(() => {
-        setIsBlocked("");
+        // setIsBlocked("");
         handleCheckBlockStatus();
     }, [selectedChat]);
 

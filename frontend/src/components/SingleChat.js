@@ -251,6 +251,7 @@ useEffect(() => {
   fetchMessages();
   setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
   selectedChatCompare = selectedChat;
+  
   // const users = selectedChat.users;
   // receiverUserIds = selectedChat.users.filter(user => user._id !== loggedUser._id);
   // setReceiverUser(receiverUserIds[0]);
