@@ -568,7 +568,7 @@ return (
             </Box>
           )}
 
-          <Box display="flex" alignItems="center" p={2} borderTop="1px solid #ccc" bg="gray.200" onKeyDown={(event) => {
+          <Box display="flex" alignItems="center" mt={1} p={2}borderTop="1px solid #ccc" bg="gray.200" onKeyDown={(event) => {
             if (event.key === 'Enter') {
               event.preventDefault(); // Prevent form submission if inside a form
               handleSend(event); // Call the handleSend function
@@ -576,7 +576,7 @@ return (
           }}
           >
 
-            <HStack spacing={2}>
+            {/* <HStack spacing={2}>
 
               {!recording && !audioBlob ?
                 <>
@@ -648,9 +648,84 @@ return (
                 _hover={{ bg: "red.600" }}
               />
 
-            )}
+            )} */}
 
-
+<HStack spacing={2} >
+  {/* Render emoji picker and file picker only if not blocked and not recording or audioBlob */}
+  {!isBlocked && !recording && !audioBlob ? (
+    <>
+      <EmojiPicker setNewMessage={setNewMessage} newMessage={newMessage} />
+      <FilePicker setNewMessage={setNewMessage} newMessage={newMessage} setFile={setFile} file={file} />
+    </>
+  ) : null}
+  {/* Show recording status if recording */}
+  {recording ? (
+    <Box>
+      <Text color="red.500" fontWeight="bold" style={{ animation: 'blinking 1s infinite' }}>
+        Recording
+      </Text>
+      <Text color="black">{recordingTime}s</Text>
+    </Box>
+  ) : null}
+  <Box id="waveform" style={{ width: '100%', height: '80px', marginLeft: '10px' }}></Box>
+  {/* Playback controls only if audioBlob is present and not recording */}
+  {audioBlob && !recording ? (
+    <IconButton
+      icon={<FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />}
+      onClick={handlePlayPause}
+      aria-label="Play/Pause"
+      bg="blue.500"
+      color="white"
+      marginLeft="10px"
+    />
+  ) : null}
+  {/* Delete button for audioBlob */}
+  {audioBlob ? (
+    <IconButton
+      icon={<FontAwesomeIcon icon={faTrash} />}
+      onClick={handleDelete}
+      aria-label="Delete"
+      colorScheme="red"
+      marginLeft="10px"
+    />
+  ) : null}
+</HStack>
+<Input
+  type="text"
+  value={newMessage}
+  ref={inputRef}
+  onChange={(e) => setNewMessage(e.target.value)}
+  placeholder={isBlocked ? "You blocked this user. Please unlock to start texting..." : "Enter a message.."}
+  isDisabled={isBlocked}
+  flex="1"
+  bg="gray.300"
+  color="gray"
+  ml={2}
+  mr={2}
+/>
+{/* Send button only if not blocked and there is a new message, audioBlob, or file */}
+{!isBlocked && (newMessage || audioBlob || file) ? (
+  <IconButton
+    icon={<FontAwesomeIcon icon={faPaperPlane} />}
+    onClick={handleSend}
+    onKeyDown={handleSend}
+    aria-label="Send Message"
+    bg="blue.500"
+    color="white"
+  />
+) : (
+  // Recording button only if not blocked
+  !isBlocked && (
+    <IconButton
+      icon={<FontAwesomeIcon icon={recording ? faPause : faMicrophone} />}
+      onClick={recording ? stopRecording : startRecording}
+      aria-label={recording ? "Stop Recording" : "Start Recording"}
+      bg={recording ? "red.500" : "green.500"}
+      color="white"
+      _hover={{ bg: "red.600" }}
+    />
+  )
+)}
           </Box>
 
 

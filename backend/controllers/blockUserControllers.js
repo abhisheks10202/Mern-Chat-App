@@ -32,7 +32,7 @@ const blocked = asyncHandler(async (req, res) => {
 });
 
 const unblocked = asyncHandler(async (req, res) => {
-  const { blockerId, blockedId } = req.body;
+  const { blockerId, blockedId } = req.query;
   console.log(blockerId,blockedId+"blockUserCOntroller unblocked")
 
   // Check if the combination of blockerId and blockedId already exists
@@ -54,7 +54,7 @@ const unblocked = asyncHandler(async (req, res) => {
 const checkBlockStatus = asyncHandler(async (req, res) => {
   const { blocked, blocker} = req.query;
  
-  console.log(blocker,blocked)
+  // console.log(blocker,blocked)
 
   if (!blocked || !blocker) {
     return res.status(400).json({ error: 'Missing chatId or blocked parameter' });
@@ -76,7 +76,7 @@ const checkBlockStatus = asyncHandler(async (req, res) => {
       // const block = await Blocked.findOne({ blocker: blocker, blocked: blockedUserIdsArray[0] });
       const block = await Blocked.findOne({ blocker: blocker, blocked: blocked });
       if (block) {
-        console.log("hello")
+        // console.log("hello")
           return res.json({ isBlocked: true });
       } else {
           return res.json({ isBlocked: false });

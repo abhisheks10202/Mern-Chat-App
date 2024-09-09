@@ -223,38 +223,25 @@ const ScrollableChat = ({ messages, fetchAgain, setFetchAgain, setMessages }) =>
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-               {m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
-        {/* {console.log(m)} */}
-                  {/* {!m.MessageDeletedForEveryone && m.audioUrl ? (
-            <AudioMessage audioUrl={m.audioUrl} />
-          ) : !m.MessageDeletedForEveryone && m.imageUrls && m.imageUrls.length > 0 ? (
-            <ImageMessage imageUrl={m.imageUrls[0]} />
-          ) : (
-            <Text fontSize="md" style={{ flex: 1 }}>
-              {m.content}
-            </Text>
-          )}
-          {m.videoUrls && m.videoUrls.length > 0 && 
-            m.videoUrls.map((videoUrl, index) => (
-              <VideoMessage key={index} videoUrl={videoUrl} />
-            ))
-          } */}
-          {!m.MessageDeletedForEveryone ? (
-    m.audioUrl ? (
-        <AudioMessage audioUrl={m.audioUrl} />
-    ) : m.imageUrls && m.imageUrls.length > 0 ? (
-        <ImageMessage imageUrl={m.imageUrls[0]} />
-    ) : m.videoUrls && m.videoUrls.length > 0 ? (
-        m.videoUrls.map((videoUrl, index) => (
-            <VideoMessage key={index} videoUrl={videoUrl} />
-        ))
-    ) : (
-        <Text fontSize="md" style={{ flex: 1 }}>
-            {m.content}
-        </Text>
-    )
-) : null}
-                
+                  {m.MessageDeletedForEveryone ? <DeleteIcon boxSize={4} mr={1} /> : <></>}
+
+
+                  {!m.MessageDeletedForEveryone ? (
+                    m.audioUrl ? (
+                      <AudioMessage audioUrl={m.audioUrl} />
+                    ) : m.imageUrls && m.imageUrls.length > 0 ? (
+                      <ImageMessage imageUrl={m.imageUrls[0]} />
+                    ) : m.videoUrls && m.videoUrls.length > 0 ? (
+                      m.videoUrls.map((videoUrl, index) => (
+                        <VideoMessage key={index} videoUrl={videoUrl} />
+                      ))
+                    ) : (
+                      <Text fontSize="md" style={{ flex: 1 }}>
+                        {m.content}
+                      </Text>
+                    )
+                  ) : m.content}
+
                   {m.MessageDeletedForEveryone === false && (
                     <Tooltip label="Delete Message" fontSize="md">
                       <ChevronDownIcon onClick={() => openModal(m, user._id, m._id)} cursor="pointer" />

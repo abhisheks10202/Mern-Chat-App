@@ -38,9 +38,9 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
         const chatId = selectedChat._id;
         setBlocker(user._id);
         const id = selectedChat.users.filter((u) => u._id != user._id)
-        console.log("blocked" + id[0]._id)
+        // console.log("blocked" + id[0]._id)
         setBlocked(id[0]._id);
-        console.log(blocked + "---");
+        // console.log(blocked + "---");
 
         try {
             const response = await axios.get(`/api/block/check-block-status?blocked=${blocked}&blocker=${blocker}`, {
@@ -50,14 +50,14 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                     'Authorization': `Bearer ${user.token}` // Add your token here if required
                 }
             });
-            console.log(response.data.isBlocked)
+            // console.log(response.data.isBlocked)
             setIsBlocked(response.data.isBlocked)
 
             if (!response) {
                 throw new Error('Network response was not ok');
             }
 
-            console.log(isBlocked + "hxjkbdkjbxmjcb")
+            // console.log(isBlocked + "hxjkbdkjbxmjcb")
         } catch (error) {
             setError(error.message);
         }
@@ -156,7 +156,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
         // Perform the block user action here
         if (!selectedChat) return;
         console.log(user._id, blocked+"fjnfenefn");
-        console.log(user.token+"token");
+        console.log(user.token+"    token");
 
 
         try {
@@ -166,14 +166,18 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
                     
                 },
             };
-            const { data } = await axios.delete(
-                "/api/block/unblock",
-                {
-                    blockerId: blocker,
-                    blockedId: blocked,
-                },
-                config
-            );
+            const url = `/api/block/unblock?blockerId=${blocker}&blockedId=${blocked}`;
+        
+            // Make the DELETE request
+            const { data } = await axios.delete(url, config);
+            // const { data } = await axios.delete(
+            //     "/api/block/unblock",
+            //     {
+            //         blockerId: blocker,
+            //         blockedId: blocked,
+            //     },
+            //     config
+            // );
             toast({
                 title: "User unblocked successfully",
                 status: "success",
