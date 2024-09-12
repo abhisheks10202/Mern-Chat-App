@@ -45,7 +45,7 @@ function SideDrawer() {
     notification,
     setNotification,
     chats,
-    setChats,
+    setChats,setUser
   } = ChatState();
 
   const toast = useToast();
@@ -54,7 +54,9 @@ function SideDrawer() {
 
   const logoutHandler = () => {
     localStorage.removeItem("userInfo");
-    setSelectedChat(null);
+    setSelectedChat("");
+    setChats("");
+    setUser("");
     history.push("/");
   };
 

@@ -9,7 +9,9 @@ import { useHistory } from "react-router-dom";
 import { ChatState } from "../../Context/ChatProvider";
 import Social from "../miscellaneous/Social";
 
+
 const Login = () => {
+  const { selectedChat, user, chats, setChats } = ChatState();
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
   const toast = useToast();
@@ -59,6 +61,7 @@ const Login = () => {
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
       history.push("/chats");
+      setChats("");
     } catch (error) {
       toast({
         title: "Error Occured!",

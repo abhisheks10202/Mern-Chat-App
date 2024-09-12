@@ -189,7 +189,7 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
         } catch (error) {
             toast({
                 title: "Error Occured!",
-                description: "Failed Unblock the User",
+                description: error.response.data.message,
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -226,9 +226,11 @@ const ChatSetting = ({ selectedChat, setFetchAgain, fetchAgain, fetchMessages, m
             });
             setIsBlocked(true);
         } catch (error) {
+            console.log(error);
             toast({
                 title: "Error Occured!",
-                description: "Failed to Load tblocked or user already blocked",
+                description: error.response.data.message,
+                // +". try after "+error.response.data.ttl +" seconds"
                 status: "error",
                 duration: 5000,
                 isClosable: true,

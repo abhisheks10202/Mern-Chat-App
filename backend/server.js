@@ -13,21 +13,21 @@ const cors = require('cors');
 
 
 
-
-
 dotenv.config();
 connectDB();
-const app = express();
 
+const app = express();
+app.use(cors());     
+app.set('trust proxy', true);
 
 
 app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
 
 app.use(express.json()); // to accept json data
 
-// app.get("/", (req, res) => {
-//   res.send("API Running!");
-// });
+
+// --------------------------Redis configuration------------------------------
+
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);

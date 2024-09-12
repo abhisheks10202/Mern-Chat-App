@@ -6,12 +6,14 @@ import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
 import { useState } from "react";
 import { useHistory } from "react-router";
+import { ChatState } from "../../Context/ChatProvider";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
   const toast = useToast();
   const history = useHistory();
+  const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
   const [name, setName] = useState();
   const [email, setEmail] = useState();
@@ -60,6 +62,7 @@ const Signup = () => {
         },
         config
       );
+      localStorage.setItem("userInfo", JSON.stringify(data));
       console.log(data);
       toast({
         title: "Registration Successful",
@@ -68,14 +71,12 @@ const Signup = () => {
         isClosable: true,
         position: "bottom",
       });
-      localStorage.setItem("userInfo", JSON.stringify(data));
       setPicLoading(false);
       history.push("/chats");
     } catch (error) {
       toast({
         title: "Error Occured!",
         description: error.response.data.message,
-        status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom",
