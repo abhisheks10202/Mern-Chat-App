@@ -3,10 +3,13 @@ const redis=require('../config/redisConfig');
 
 function rateLimiter({secondWindow,allowedHits}){
     return async function(req, res, next)  {
-        const ip=(req.headers['x-forwarded-for']||req.connection.remoteAddress);
+        const forwarded = req.headers['x-forwarded-for']; 
+        const ip = forwarded ? forwarded.split(',')[0] : req.connection.remoteAddress;
+        // const ip=(req.headers['x-forwarded-for']||req.connection.remoteAddress);
         // Construct a unique key using the endpoint and IP address
+        console.log(ip+" ip");
         const endpoint = req.originalUrl; 
-        console.log(endpoint+" endpoint")
+        // console.log(endpoint+" endpoint")
         const key = `${endpoint}:${ip}`;
         // Increment the request count for the constructed key
         const requests = await redis.incr(key);
